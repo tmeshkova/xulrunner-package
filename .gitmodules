@@ -1,0 +1,12 @@
+[submodule "mozilla-central"]
+	path = mozilla-central
+	url = git://github.com/tmeshkova/mozilla-central.git
+[submodule "qtmozembed"]
+	path = qtmozembed
+	url = git://github.com/tmeshkova/qtmozembed.git
+[submodule "qmlmozbrowser"]
+	path = qmlmozbrowser
+	url = git://github.com/tmeshkova/qmlmozbrowser.git
+[submodule "embedlite-components"]
+	path = embedlite-components
+	url = git://github.com/tmeshkova/embedlite-components.git
