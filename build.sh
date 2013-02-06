@@ -48,7 +48,7 @@ build_engine()
         date +%s > $CDR/$OBJTARGETDIR/full_build_date
     fi
 
-    if [! -f $CDR/$OBJTARGETDIR/dist/bin/libxul.so ]; then
+    if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/libxul.so ]; then
         echo "Something went wrong, need full build"
         exit 1;
     fi
