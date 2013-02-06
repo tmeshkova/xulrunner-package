@@ -21,7 +21,7 @@ else
     MOZCONFIG=mozconfig.qtdesktop
 fi
 
-echo "Building with MOZCONFIG=$MOZCONFIG"
+echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
 # prepare engine mozconfig
 cp -f $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-central/
@@ -31,7 +31,8 @@ echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 build_engine()
 {
     # Build engine
-    if [ -f $CDR/$OBJTARGETDIR/full_build_date && -f $CDR/$OBJTARGETDIR/dist/bin/libxul.so ]; then
+    echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
+    if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
         make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite
         make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
