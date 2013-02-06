@@ -57,13 +57,15 @@ build_engine()
 build_components()
 {
     # Build Embedlite components
+    mkdir -p $CDR/embedlite-components/$OBJTARGETDIR
     if [ ! -f $CDR/embedlite-components/configure ]; then
         cd $CDR/embedlite-components && NO_CONFIGURE=yes ./autogen.sh && cd $CDR
     fi
-    if [ ! -f $CDR/embedlite-components/config.status ]; then
-        cd $CDR/embedlite-components && ./configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
+    if [ ! -f $CDR/embedlite-components/$OBJTARGETDIR/config.status ]; then
+        cd $CDR/embedlite-components/$OBJTARGETDIR && ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
-    make -j4 -C $CDR/embedlite-components
+    make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
+    echo "$OBJTARGETDIR" > $CDR/embedlite-components/last_obj_dir
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/components/EmbedLiteBinComponents.manifest ]; then
         cd $CDR/embedlite-components && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin/components
     fi
@@ -82,15 +84,16 @@ build_qmlbrowser()
 {
     # Build qmlmozbrowser
     if [ ! -f $CDR/qmlmozbrowser/Makefile ]; then
-        cd $CDR/qmlmozbrowser && qmake DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a && cd $CDR
+        cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a && cd $CDR
     fi
+    echo obj-$ARCH-dir > $CDR/qmlmozbrowser/objdir-name
     make -j4 -C $CDR/qmlmozbrowser
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest ]; then
         cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin
     fi
 }
 
-build_engine
+#build_engine
 build_components
 build_qtmozembed
 build_qmlbrowser
