@@ -93,7 +93,7 @@ build_qmlbrowser()
     fi
 }
 
-#build_engine
+build_engine
 build_components
 build_qtmozembed
 build_qmlbrowser
