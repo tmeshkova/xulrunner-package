@@ -18,7 +18,11 @@ if [ "$ARCH" = "arm" ]; then
         fi
     fi
 else
-    MOZCONFIG=mozconfig.qtdesktop
+    if [ "$ARCH" = "armv7l" ]; then
+        MOZCONFIG=mozconfig.merqtxulrunner
+    else
+        MOZCONFIG=mozconfig.qtdesktop
+    fi
 fi
 
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
