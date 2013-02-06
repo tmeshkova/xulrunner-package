@@ -85,7 +85,7 @@ build_qmlbrowser()
 {
     # Build qmlmozbrowser
     if [ ! -f $CDR/qmlmozbrowser/Makefile -o ! -d $CDR/qmlmozbrowser/obj-$ARCH-dir ]; then
-        cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a && cd $CDR
+        cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
         cd $CDR/qmlmozbrowser && make clean
     fi
     echo obj-$ARCH-dir > $CDR/qmlmozbrowser/objdir-name
