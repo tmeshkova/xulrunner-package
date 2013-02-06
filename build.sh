@@ -1,2 +1,76 @@
 #!/bin/sh
 
+CDR=$(pwd)
+ARCH=`uname -m`
+OBJTARGETDIR=objdir-$ARCH
+MOZCONFIG=""
+if [ "$ARCH" = "arm" ]; then
+    gcc --version | grep cs2009q3-hard-67-sb16
+    if [ "$?" = "0" ]; then
+        MOZCONFIG=mozconfig.qtN9-qt
+    else
+        gcc --version | grep "sbox-arm-none-linux-gnueabi-gcc (GCC) 4.2.1"
+        if [ "$?" = "0" ]; then
+            MOZCONFIG=mozconfig.qtN900-qt
+        else
+            echo "Unknow config for this environment" 
+            exit 1;
+        fi
+    fi
+else
+    MOZCONFIG=mozconfig.qtdesktop
+fi
+
+# prepare engine mozconfig
+cp $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-central/
+MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
+echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
+
+# Build engine
+if [ -f $CDR/mozilla-central/full_build_date ]; then
+    echo "Full build ready"
+    make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite
+    make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
+else
+    echo "Full build not ready"
+    # build engine, take some time
+    MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk build_all
+    # disable symlinks for python stub
+    cp -rfL $CDR/$OBJTARGETDIR/dist/sdk/bin $CDR/$OBJTARGETDIR/dist/sdk/bin_no_symlink
+    rm -rf $CDR/$OBJTARGETDIR/dist/sdk/bin
+    mv $CDR/$OBJTARGETDIR/dist/sdk/bin_no_symlink $CDR/$OBJTARGETDIR/dist/sdk/bin
+    # make build stamp
+    date +%s > $CDR/mozilla-central/full_build_date
+fi
+
+# Build Embedlite components
+if [ ! -f $CDR/embedlite-components/configure ]; then
+    cd $CDR/embedlite-components && NO_CONFIGURE=yes ./autogen.sh && cd $CDR
+fi
+if [ ! -f $CDR/embedlite-components/config.status ]; then
+    cd $CDR/embedlite-components && ./configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
+fi
+make -j4 -C $CDR/embedlite-components
+if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/components/EmbedLiteBinComponents.manifest ]; then
+    cd $CDR/embedlite-components && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin/components
+fi
+
+# Build qtmozembed
+if [ ! -f $CDR/qtmozembed/Makefile ]; then
+    cd $CDR/qtmozembed && qmake OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_ARCH=$ARCH CONFIG+=staticlib && cd $CDR
+fi
+make -j4 -C $CDR/qtmozembed
+
+# Build qmlmozbrowser
+if [ ! -f $CDR/qmlmozbrowser/Makefile ]; then
+    cd $CDR/qmlmozbrowser && qmake DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a && cd $CDR
+fi
+make -j4 -C $CDR/qmlmozbrowser
+if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest ]; then
+    cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin
+fi
+
+echo "
+run test example:
+$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest -url about:license
+"
