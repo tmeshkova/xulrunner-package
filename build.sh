@@ -77,20 +77,16 @@ build_components()
 build_qtmozembed()
 {
     # Build qtmozembed
-    if [ ! -f $CDR/qtmozembed/Makefile -o ! -d $CDR/qtmozembed/obj-$ARCH-dir ]; then
-        cd $CDR/qtmozembed && qmake OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_ARCH=$ARCH CONFIG+=staticlib && cd $CDR
-        cd $CDR/qtmozembed && make clean
-    fi
+    cd $CDR/qtmozembed && qmake OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_ARCH=$ARCH CONFIG+=staticlib && cd $CDR
+    cd $CDR/qtmozembed && make clean
     make -j4 -C $CDR/qtmozembed
 }
 
 build_qmlbrowser()
 {
     # Build qmlmozbrowser
-    if [ ! -f $CDR/qmlmozbrowser/Makefile -o ! -d $CDR/qmlmozbrowser/obj-$ARCH-dir ]; then
-        cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
-        cd $CDR/qmlmozbrowser && make clean
-    fi
+    cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
+    cd $CDR/qmlmozbrowser && make clean
     make -j4 -C $CDR/qmlmozbrowser
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest ]; then
         cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin
