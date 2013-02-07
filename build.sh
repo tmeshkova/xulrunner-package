@@ -31,12 +31,13 @@ echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 cp -f $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-central/
 MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
+echo "ac_add_options --disable-tests" >> $MOZCONFIG
 
 build_engine()
 {
     # Build engine
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
-    if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
+    if [ -f $CDR/$OBJTARGETDIR/full_build_date -a -f $CDR/$OBJTARGETDIR/dist/bin/libxul.so ]; then
         echo "Full build ready"
         make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite
         make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
