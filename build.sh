@@ -69,7 +69,6 @@ build_components()
         cd $CDR/embedlite-components/$OBJTARGETDIR && ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
     make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
-    echo "$OBJTARGETDIR" > $CDR/embedlite-components/last_obj_dir
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/components/EmbedLiteBinComponents.manifest ]; then
         cd $CDR/embedlite-components && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin/components
     fi
@@ -92,7 +91,6 @@ build_qmlbrowser()
         cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
         cd $CDR/qmlmozbrowser && make clean
     fi
-    echo obj-$ARCH-dir > $CDR/qmlmozbrowser/objdir-name
     make -j4 -C $CDR/qmlmozbrowser
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest ]; then
         cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin
