@@ -37,10 +37,14 @@ build_engine()
 {
     # Build engine
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
-    if [ -f $CDR/$OBJTARGETDIR/full_build_date -a -f $CDR/$OBJTARGETDIR/dist/bin/libxul.so ]; then
+    if [ -f $CDR/$OBJTARGETDIR/full_build_date -a -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
-        make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite
-        make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
+        make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
+        RES=$?
+        if [ "$RES" != "0" ]; then
+            echo "Build failed, exit"
+            exit $RES;
+        fi
     else
         echo "Full build not ready"
         # build engine, take some time
@@ -70,6 +74,11 @@ build_components()
         cd $CDR/embedlite-components/$OBJTARGETDIR && ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
     make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
+    RES=$?
+    if [ "$RES" != "0" ]; then
+        echo "Build failed, exit"
+        exit $RES;
+    fi
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/components/EmbedLiteBinComponents.manifest ]; then
         cd $CDR/embedlite-components && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin/components
     fi
@@ -81,6 +90,11 @@ build_qtmozembed()
     cd $CDR/qtmozembed && qmake OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_ARCH=$ARCH CONFIG+=staticlib && cd $CDR
     cd $CDR/qtmozembed && make clean
     make -j4 -C $CDR/qtmozembed
+    RES=$?
+    if [ "$RES" != "0" ]; then
+        echo "Build failed, exit"
+        exit $RES;
+    fi
 }
 
 build_qmlbrowser()
@@ -89,6 +103,11 @@ build_qmlbrowser()
     cd $CDR/qmlmozbrowser && qmake OBJ_ARCH=$ARCH DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin/components QTEMBED_LIB+=$CDR/qtmozembed/obj-$ARCH-dir/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
     cd $CDR/qmlmozbrowser && make clean
     make -j4 -C $CDR/qmlmozbrowser
+    RES=$?
+    if [ "$RES" != "0" ]; then
+        echo "Build failed, exit"
+        exit $RES;
+    fi
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest ]; then
         cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin
     fi
