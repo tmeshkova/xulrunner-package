@@ -32,12 +32,13 @@ cp -f $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-ce
 MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
+echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
 
 build_engine()
 {
     # Build engine
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
-    if [ -f $CDR/$OBJTARGETDIR/full_build_date -a -f $CDR/$OBJTARGETDIR/full_build_date ]; then
+    if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
         make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
         RES=$?
