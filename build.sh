@@ -50,6 +50,11 @@ build_engine()
         echo "Full build not ready"
         # build engine, take some time
         MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk build_all
+        RES=$?
+        if [ "$RES" != "0" ]; then
+            echo "Build failed, exit"
+            exit $RES;
+        fi
         # disable symlinks for python stub
         cp -rfL $CDR/$OBJTARGETDIR/dist/sdk/bin $CDR/$OBJTARGETDIR/dist/sdk/bin_no_symlink
         rm -rf $CDR/$OBJTARGETDIR/dist/sdk/bin
