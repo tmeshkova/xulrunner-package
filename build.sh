@@ -13,8 +13,13 @@ if [ "$ARCH" = "arm" ]; then
         if [ "$?" = "0" ]; then
             MOZCONFIG=mozconfig.qtN900-qt
         else
-            echo "Unknow config for this environment" 
-            exit 1;
+            gcc --version | grep "crosstool-NG"
+            if [ "$?" = "0" ]; then
+                MOZCONFIG=mozconfig.rsppi-qt
+            else
+                echo "Unknow config for this environment"
+                exit 1;
+            fi
         fi
     fi
 else
