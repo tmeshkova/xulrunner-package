@@ -84,7 +84,7 @@ build_components()
     if [ ! -f $CDR/embedlite-components/$OBJTARGETDIR/config.status ]; then
         cd $CDR/embedlite-components/$OBJTARGETDIR && ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
-    make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
+    export echo=echo && make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
