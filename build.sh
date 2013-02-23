@@ -3,7 +3,7 @@
 CDR=$(pwd)
 ARCH=`uname -m`
 MOZCONFIG=""
-EXTRAOPTS="ac_add_options --enable-debug\n"
+EXTRAOPTS=""
 CUSTOM_BUILD=
 if [ "$1" != "" ]; then
 CUSTOM_BUILD=$1
