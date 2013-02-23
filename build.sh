@@ -8,7 +8,7 @@ CUSTOM_BUILD=
 if [ "$1" != "" ]; then
 CUSTOM_BUILD=$1
 fi
-OBJTARGETDIR=objdir-$ARCH-$CUSTOM_BUILD
+OBJTARGETDIR=objdir-$ARCH$CUSTOM_BUILD
 if [ "$ARCH" = "arm" ]; then
     gcc --version | grep cs2009q3-hard-67-sb16
     if [ "$?" = "0" ]; then
