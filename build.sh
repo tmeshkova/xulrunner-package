@@ -2,9 +2,13 @@
 
 CDR=$(pwd)
 ARCH=`uname -m`
-OBJTARGETDIR=objdir-$ARCH
 MOZCONFIG=""
-EXTRAOPTS=""
+EXTRAOPTS="ac_add_options --enable-debug\n"
+CUSTOM_BUILD=
+if [ "$1" != "" ]; then
+CUSTOM_BUILD=$1
+fi
+OBJTARGETDIR=objdir-$ARCH-$CUSTOM_BUILD
 if [ "$ARCH" = "arm" ]; then
     gcc --version | grep cs2009q3-hard-67-sb16
     if [ "$?" = "0" ]; then
@@ -19,7 +23,7 @@ if [ "$ARCH" = "arm" ]; then
                 MOZCONFIG=mozconfig.rsppi-qt
                 # assume rasppi embedlite build only works with qt5 located in /opt/qt5
                 QT5DIR="/opt/qt5"
-                EXTRAOPTS="ac_add_options --with-qtdir=$QT5DIR"
+                EXTRAOPTS="$EXTRAOPTS ac_add_options --with-qtdir=$QT5DIR\n"
                 # hardcode pkg config path for cross env
                 export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig
                 # added default path to qt5 qmake
