@@ -1,1 +1,3 @@
 Mer: libtool,qjson-devel
+Rsppi-gtk: libgtk+2.0-dev
+Rsppi-qt: libqtbase5.0-dev
