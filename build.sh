@@ -4,43 +4,46 @@ CDR=$(pwd)
 ARCH=`uname -m`
 MOZCONFIG=""
 EXTRAOPTS=""
-CUSTOM_BUILD=
+TARGET_CONFIG=INVALID_TARGET_NAME
 if [ "$1" != "" ]; then
-CUSTOM_BUILD=$1
+TARGET_CONFIG=$1
 fi
-OBJTARGETDIR=objdir-$ARCH$CUSTOM_BUILD
-if [ "$ARCH" = "arm" ]; then
-    gcc --version | grep cs2009q3-hard-67-sb16
-    if [ "$?" = "0" ]; then
-        MOZCONFIG=mozconfig.qtN9-qt
-    else
-        gcc --version | grep "sbox-arm-none-linux-gnueabi-gcc (GCC) 4.2.1"
-        if [ "$?" = "0" ]; then
-            MOZCONFIG=mozconfig.qtN900-qt
-        else
-            gcc --version | grep "crosstool-NG"
-            if [ "$?" = "0" ]; then
-                MOZCONFIG=mozconfig.rsppi-qt
-                # assume rasppi embedlite build only works with qt5 located in /opt/qt5
-                QT5DIR="/opt/qt5"
-                EXTRAOPTS="$EXTRAOPTS ac_add_options --with-qtdir=$QT5DIR\n"
-                # hardcode pkg config path for cross env
-                export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig
-                # added default path to qt5 qmake
-                export PATH=$QT5DIR/bin:$PATH
-            else
-                echo "Unknow config for this environment"
-                exit 1;
-            fi
-        fi
-    fi
-else
-    if [ "$ARCH" = "armv7l" ]; then
-        MOZCONFIG=mozconfig.merqtxulrunner
-    else
-        MOZCONFIG=mozconfig.qtdesktop
-    fi
-fi
+OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
+TARGET_QMAKE=qmake
+
+case $TARGET_CONFIG in
+  "desktop")
+    echo "Building for desktop"
+    MOZCONFIG=mozconfig.qtdesktop
+    ;;
+  "harmattan")
+    echo "Building for harmattan"
+    MOZCONFIG=mozconfig.qtN9-qt-cross
+    ROOTFSNAME=HARMATTAN_ARMEL
+    SBOX_PATH=/scratchbox
+    export SB2_SHELL="sb2 -t harmattan"
+    export TARGET_ROOTFS=$SBOX_PATH/users/romaxa/targets/$ROOTFSNAME
+    export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi
+    export SYSROOT=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/arm-none-linux-gnueabi/libc
+    ;;
+  "mer")
+    echo "Building for Mer"
+    MOZCONFIG=mozconfig.merqtxulrunner
+    ;;
+  "raspberrypi")
+    MOZCONFIG=mozconfig.rsppi-qt
+    # assume rasppi embedlite build only works with qt5 located in /opt/qt5
+    QT5DIR="/opt/qt5"
+    EXTRAOPTS="$EXTRAOPTS ac_add_options --with-qtdir=$QT5DIR\n"
+    # hardcode pkg config path for cross env
+    export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig
+    # added default path to qt5 qmake
+    export PATH=$QT5DIR/bin:$PATH
+    ;;
+  *)
+    echo "Please specify valid target name"
+    ;;
+esac
 
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
@@ -97,9 +100,9 @@ build_components()
         cd $CDR/embedlite-components && NO_CONFIGURE=yes ./autogen.sh && cd $CDR
     fi
     if [ ! -f $CDR/embedlite-components/$OBJTARGETDIR/config.status ]; then
-        cd $CDR/embedlite-components/$OBJTARGETDIR && ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
+        cd $CDR/embedlite-components/$OBJTARGETDIR && $SB2_SHELL ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
-    export echo=echo && make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
+    export echo=echo && $SB2_SHELL make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
@@ -113,9 +116,9 @@ build_components()
 build_qtmozembed()
 {
     # Build qtmozembed
-    cd $CDR/qtmozembed && qmake OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR
-    cd $CDR/qtmozembed && make clean
-    make -j4 -C $CDR/qtmozembed
+    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR
+    cd $CDR/qtmozembed && $SB2_SHELL make clean
+    $SB2_SHELL make -j4 -C $CDR/qtmozembed
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
@@ -126,9 +129,9 @@ build_qtmozembed()
 build_qmlbrowser()
 {
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && qmake OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
-    cd $CDR/qmlmozbrowser && make clean
-    make -j4 -C $CDR/qmlmozbrowser
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
+    cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
+    $SB2_SHELL make -j4 -C $CDR/qmlmozbrowser
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
