@@ -7,6 +7,7 @@ use File::Basename;
 use File::Spec;
 
 my $CURDIRVAL=`pwd`;
+chomp($CURDIRVAL);
 
 if ($CURDIRVAL=~/scratchbox.*users.*target.*\/usr\/lib/) {
   print "Applying sbox rootfs script on $CURDIRVAL\n";
@@ -17,7 +18,7 @@ if ($CURDIRVAL=~/scratchbox.*users.*target.*\/usr\/lib/) {
 
 opendir my $dirh, '.';
 while (my $file = readdir $dirh) {
-    if ( -l $file ) {  
+    if ( -l $file ) {
         my $target = readlink $file;
         if ( ! -e $target && ! -l $target ) {
             if ($target=~/\/lib\//) {
@@ -47,14 +48,30 @@ while ($nssfiles=~/^(.*)$/gm) {
     print "Moving $nssfile to backup.nss\n";
     system("mv $nssfile ./backup.nss/");
 }
-
+system("chmod a+rw ../../lib/libgcc_s.so");
 system("echo 'GROUP ( libgcc_s.so.1 libgcc.a )' > ../../lib/libgcc_s.so");
 
 system("echo 'OUTPUT_FORMAT(elf32-littlearm)' > libc.so");
 system("echo 'GROUP ( ../../lib/libc.so.6 libc_nonshared.a  AS_NEEDED ( ../../lib/ld-linux.so.3 ) )' >> libc.so");
 
 system("echo 'OUTPUT_FORMAT(elf32-littlearm)' > libpthread.so");
-system("echo 'GROUP ( ../../lib/libpthread.so.0 libpthread_nonshared.a ' >> libpthread.so");
+system("echo 'GROUP ( ../../lib/libpthread.so.0 libpthread_nonshared.a )' >> libpthread.so");
 
 system("rm -f ./libstdc++.so");
 symlink("./libstdc++.so.6.0.12", "./libstdc++.so");
+
+chdir("$CURDIRVAL/../bin");
+opendir my $dirhb, '.';
+while (my $file = readdir $dirhb) {
+    if ( -l $file ) {  
+        my $target = readlink $file;
+        if ( ! -e $target && ! -l $target ) {
+            if ($target=~/\/usr\/bin\//) {
+                my ($lnvolume, $lndirectories, $lnfile) = File::Spec->splitpath($target);
+                unlink $file;
+                symlink("./$lnfile", "./$file");
+                print "$file -> $target : target-file: $lnfile broken\n";
+            }
+        }
+    }
+}
