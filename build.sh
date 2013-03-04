@@ -41,7 +41,7 @@ case $TARGET_CONFIG in
     export PATH=$QT5DIR/bin:$PATH
     ;;
   *)
-    echo "Please specify valid target name"
+    echo "Please specify valid target name\n\t Ex: ./build.sh desktop"
     exit 1;
     ;;
 esac
