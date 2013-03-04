@@ -87,8 +87,8 @@ MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
-echo "ac_add_options --enable-debug" >> $MOZCONFIG
-echo "ac_add_options --enable-logging" >> $MOZCONFIG
+#echo "ac_add_options --enable-debug" >> $MOZCONFIG
+#echo "ac_add_options --enable-logging" >> $MOZCONFIG
 echo "$EXTRAOPTS" >> $MOZCONFIG
 
 build_engine()
