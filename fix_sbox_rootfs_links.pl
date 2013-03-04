@@ -48,9 +48,5 @@ while ($nssfiles=~/^(.*)$/gm) {
     system("mv $nssfile ./backup.nss/");
 }
 
-unlink "gcc/arm-linux-gnueabi/4.4/libgcc_s.so";
-symlink("../../../../../lib/libgcc_s.so.1", "gcc/arm-linux-gnueabi/4.4/libgcc_s.so");
-system("rm -f ./libgcc_s.so");
-symlink("gcc/arm-linux-gnueabi/4.4/libgcc_s.so", "libgcc_s.so");
 system("rm -f ./libstdc++.so");
 symlink("./libstdc++.so.6.0.12", "./libstdc++.so");
