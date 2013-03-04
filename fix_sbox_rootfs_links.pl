@@ -48,5 +48,6 @@ while ($nssfiles=~/^(.*)$/gm) {
     system("mv $nssfile ./backup.nss/");
 }
 
+system("echo 'GROUP ( libgcc_s.so.1 libgcc.a )' > ../../lib/libgcc_s.so");
 system("rm -f ./libstdc++.so");
 symlink("./libstdc++.so.6.0.12", "./libstdc++.so");
