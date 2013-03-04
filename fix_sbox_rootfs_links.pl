@@ -69,7 +69,7 @@ while (my $file = readdir $dirhb) {
             if ($target=~/\/usr\/bin\//) {
                 my ($lnvolume, $lndirectories, $lnfile) = File::Spec->splitpath($target);
                 unlink $file;
-                symlink("./$lnfile", "./$file");
+                symlink("$CURDIRVAL/../bin/$lnfile", "$file");
                 print "$file -> $target : target-file: $lnfile broken\n";
             }
         }
