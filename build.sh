@@ -50,11 +50,11 @@ case $TARGET_CONFIG in
 
     MOZCONFIG=mozconfig.qtN9-qt-cross
     USERNAME=`whoami`
-    export HOST_MOC="sb2 -t harmattan host-moc"
-    export HOST_RCC="sb2 -t harmattan host-rcc"
-    export MOC="sb2 -t harmattan host-moc"
-    export RCC="sb2 -t harmattan host-rcc"
     export SB2_SHELL="sb2 -t harmattan"
+    export HOST_MOC="$SB2_SHELL host-moc"
+    export HOST_RCC="$SB2_SHELL host-rcc"
+    export MOC="$SB2_SHELL host-moc"
+    export RCC="$SB2_SHELL host-rcc"
     export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
     export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi
     export SYSROOT=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/arm-none-linux-gnueabi/libc
@@ -87,8 +87,8 @@ MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
-#echo "ac_add_options --enable-debug" >> $MOZCONFIG
-#echo "ac_add_options --enable-logging" >> $MOZCONFIG
+echo "ac_add_options --enable-debug" >> $MOZCONFIG
+echo "ac_add_options --enable-logging" >> $MOZCONFIG
 echo "$EXTRAOPTS" >> $MOZCONFIG
 
 build_engine()
@@ -143,7 +143,7 @@ build_components()
         exit $RES;
     fi
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/components/EmbedLiteBinComponents.manifest ]; then
-        cd $CDR/embedlite-components && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $CUSTOM_BUILD
+        cd $CDR/embedlite-components && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
     fi
 }
 
