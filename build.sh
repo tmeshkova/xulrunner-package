@@ -18,10 +18,28 @@ case $TARGET_CONFIG in
     ;;
   "harmattan")
     echo "Building for harmattan"
-    MOZCONFIG=mozconfig.qtN9-qt-cross
     ROOTFSNAME=HARMATTAN_ARMEL
     SBOX_PATH=/scratchbox
+    which sb2;
+    if [ "$?" = "1" ]; then
+      echo "scratchbox2 must be installed for harmattan cross compile environment for running rcc and moc qt tools";
+      exit 1;
+    fi
+    sb2 -t harmattan echo
+    if [ "$?" = "1" ]; then
+      echo "scratchbox2 must have \"harmattan\" target wrapped around harmattan rootfs";
+      echo "  execute: sudo /etc/init.d/scratchbox-core stop"
+      echo "  and run:\n  cd $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME;"
+      echo "  sb2-init -n -N -M arm -m devel  -t $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME harmattan /scratchbox/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi-gcc"
+      exit 1;
+    fi
+
+    MOZCONFIG=mozconfig.qtN9-qt-cross
     USERNAME=`whoami`
+    export HOST_MOC="sb2 -t harmattan host-moc"
+    export HOST_RCC="sb2 -t harmattan host-rcc"
+    export MOC="sb2 -t harmattan host-moc"
+    export RCC="sb2 -t harmattan host-rcc"
     export SB2_SHELL="sb2 -t harmattan"
     export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
     export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi
