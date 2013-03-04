@@ -42,6 +42,7 @@ case $TARGET_CONFIG in
     ;;
   *)
     echo "Please specify valid target name"
+    exit 1;
     ;;
 esac
 
