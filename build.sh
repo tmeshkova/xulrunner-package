@@ -21,8 +21,9 @@ case $TARGET_CONFIG in
     MOZCONFIG=mozconfig.qtN9-qt-cross
     ROOTFSNAME=HARMATTAN_ARMEL
     SBOX_PATH=/scratchbox
+    USERNAME=`whoami`
     export SB2_SHELL="sb2 -t harmattan"
-    export TARGET_ROOTFS=$SBOX_PATH/users/romaxa/targets/$ROOTFSNAME
+    export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
     export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi
     export SYSROOT=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/arm-none-linux-gnueabi/libc
     ;;
