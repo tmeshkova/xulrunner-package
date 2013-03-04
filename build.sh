@@ -22,7 +22,8 @@ case $TARGET_CONFIG in
     SBOX_PATH=/scratchbox
     which sb2;
     if [ "$?" = "1" ]; then
-      echo "scratchbox2 must be installed for harmattan cross compile environment for running rcc and moc qt tools";
+      echo "Error:\n\tscratchbox2 must be installed for harmattan cross compile environment for running rcc and moc qt tools";
+      echo "\trun:\tsudo apt-get install scratchbox2"
       exit 1;
     fi
     sb2 -t harmattan echo
