@@ -33,6 +33,15 @@ case $TARGET_CONFIG in
       echo "  sb2-init -n -N -M arm -m devel  -t $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME harmattan /scratchbox/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi-gcc"
       exit 1;
     fi
+    if [ -e $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME/usr/lib/libdl.so ]; then
+        echo "Harmattan rootfs state is good"
+    else
+        echo "Error:"
+        echo "\tCurrent rootfs contain broken symlinks, please do next:"
+        echo "\tcd $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME/usr/lib"
+        echo "\t$CDR/fix_sbox_rootfs_links.pl"
+        exit 0;
+    fi
 
     MOZCONFIG=mozconfig.qtN9-qt-cross
     USERNAME=`whoami`
