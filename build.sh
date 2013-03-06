@@ -82,6 +82,8 @@ case $TARGET_CONFIG in
     export CROSS_TARGET=--target=arm-none-linux-gnueabi
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
     export MOC="$CDR/cross-tools/host-moc-4.7.4"
+    export HOST_RCC="$CDR/cross-tools/host-rcc-4.7.4"
+    export RCC="$CDR/cross-tools/host-rcc-4.7.4"
     export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
     export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi
     export SYSROOT=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/arm-none-linux-gnueabi/libc
@@ -95,6 +97,8 @@ case $TARGET_CONFIG in
     MOZCONFIG=mozconfig.qtN900-qt-cross-x
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
     export MOC="$CDR/cross-tools/host-moc-4.7.4"
+    export HOST_RCC="$CDR/cross-tools/host-rcc-4.7.4"
+    export RCC="$CDR/cross-tools/host-rcc-4.7.4"
     export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
     export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/linaro-4.7-2012.07-fremantle-armv7a/bin/arm-none-linux-gnueabi
     export SYSROOT=$SBOX_PATH/compilers/linaro-4.7-2012.07-fremantle-armv7a/arm-none-linux-gnueabi/libc
