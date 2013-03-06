@@ -21,10 +21,16 @@ while (my $file = readdir $dirh) {
     if ( -l $file ) {
         my $target = readlink $file;
         if ( ! -e $target && ! -l $target ) {
-            if ($target=~/\/lib\//) {
+            if ($target=~/^\/lib\//) {
                 my ($lnvolume, $lndirectories, $lnfile) = File::Spec->splitpath($target);
                 unlink $file;
                 symlink("../../lib/$lnfile", "$file");
+                print "$file -> $target : target-file: $lnfile broken\n";
+            }
+            if ($target=~/^\/opt\//) {
+                my ($lnvolume, $lndirectories, $lnfile) = File::Spec->splitpath($target);
+                unlink $file;
+                symlink("../../opt/lib/$lnfile", "$file");
                 print "$file -> $target : target-file: $lnfile broken\n";
             }
         }
@@ -58,7 +64,7 @@ system("echo 'OUTPUT_FORMAT(elf32-littlearm)' > libpthread.so");
 system("echo 'GROUP ( ../../lib/libpthread.so.0 libpthread_nonshared.a )' >> libpthread.so");
 
 system("rm -f ./libstdc++.so");
-symlink("./libstdc++.so.6.0.12", "./libstdc++.so");
+symlink("libstdc++.so.6", "libstdc++.so");
 
 chdir("$CURDIRVAL/../bin");
 opendir my $dirhb, '.';

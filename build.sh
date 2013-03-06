@@ -2,6 +2,7 @@
 
 CDR=$(pwd)
 ARCH=`uname -m`
+USERNAME=`whoami`
 MOZCONFIG=""
 EXTRAOPTS=""
 TARGET_CONFIG=INVALID_TARGET_NAME
@@ -14,16 +15,27 @@ CUSTOM_BUILD=$2
 fi
 OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
 TARGET_QMAKE=qmake
+NEED_SBOX2=false
 
-case $TARGET_CONFIG in
-  "desktop")
-    echo "Building for desktop"
-    MOZCONFIG=mozconfig.qtdesktop
-    ;;
-  "harmattan")
-    echo "Building for harmattan"
-    ROOTFSNAME=HARMATTAN_ARMEL
-    SBOX_PATH=/scratchbox
+check_sbox_rootfs()
+{
+    if [ -e $SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME/usr/lib/libdl.so ]; then
+        echo "$TARGET_CONFIG rootfs state is good"
+    else
+        echo "Error:"
+        echo "\tCurrent rootfs contain broken symlinks, please do next:"
+        echo "\tcd $SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME/usr/lib"
+        echo "\t$CDR/fix_sbox_rootfs_links.pl"
+        exit 0;
+    fi
+}
+
+check_sbox2()
+{
+    if [ $NEED_SBOX2 = false ];then
+        return;
+    fi
+    export SB2_SHELL="sb2 -t $TARGET_CONFIG"
     which sb2;
     if [ "$?" = "1" ]; then
       echo "Error:\n\tscratchbox2 must be installed for harmattan cross compile environment for running rcc and moc qt tools";
@@ -34,30 +46,43 @@ case $TARGET_CONFIG in
     if [ "$?" = "1" ]; then
       echo "scratchbox2 must have \"harmattan\" target wrapped around harmattan rootfs";
       echo "  execute: sudo /etc/init.d/scratchbox-core stop"
-      echo "  and run:\n  cd $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME;"
-      echo "  sb2-init -n -N -M arm -m devel  -t $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME harmattan /scratchbox/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi-gcc"
+      echo "  and run:\n  cd $SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME;"
+      echo "  sb2-init -n -N -M arm -m devel  -t $SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME harmattan /scratchbox/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi-gcc"
       exit 1;
     fi
-    if [ -e $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME/usr/lib/libdl.so ]; then
-        echo "Harmattan rootfs state is good"
-    else
-        echo "Error:"
-        echo "\tCurrent rootfs contain broken symlinks, please do next:"
-        echo "\tcd $SBOX_PATH/users/`whoami`/targets/$ROOTFSNAME/usr/lib"
-        echo "\t$CDR/fix_sbox_rootfs_links.pl"
-        exit 0;
-    fi
+}
 
+case $TARGET_CONFIG in
+  "desktop")
+    echo "Building for desktop"
+    MOZCONFIG=mozconfig.qtdesktop
+    ;;
+  "harmattan")
+    echo "Building for harmattan"
+    ROOTFSNAME=HARMATTAN_ARMEL
+    SBOX_PATH=/scratchbox
+    check_sbox_rootfs
+    NEED_SBOX2=true
     MOZCONFIG=mozconfig.qtN9-qt-cross
-    USERNAME=`whoami`
-    export SB2_SHELL="sb2 -t harmattan"
-    export HOST_MOC="$SB2_SHELL host-moc"
-    export HOST_RCC="$SB2_SHELL host-rcc"
-    export MOC="$SB2_SHELL host-moc"
-    export RCC="$SB2_SHELL host-rcc"
+
+    export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
+    export MOC="$CDR/cross-tools/host-moc-4.7.4"
     export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
     export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/bin/arm-none-linux-gnueabi
     export SYSROOT=$SBOX_PATH/compilers/cs2009q3-eglibc2.10-armv7-hard/arm-none-linux-gnueabi/libc
+    ;;
+  "fremantle")
+    echo "Building for fremantle"
+    ROOTFSNAME=FREMANTLE_ARMEL_GCC472
+    SBOX_PATH=/scratchbox
+    check_sbox_rootfs
+    NEED_SBOX2=true
+    MOZCONFIG=mozconfig.qtN900-qt-cross-x
+    export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
+    export MOC="$CDR/cross-tools/host-moc-4.7.4"
+    export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
+    export CROSS_COMPILER_PATH=$SBOX_PATH/compilers/linaro-4.7-2012.07-fremantle-armv7a/bin/arm-none-linux-gnueabi
+    export SYSROOT=$SBOX_PATH/compilers/linaro-4.7-2012.07-fremantle-armv7a/arm-none-linux-gnueabi/libc
     ;;
   "mer")
     echo "Building for Mer"
@@ -149,6 +174,7 @@ build_components()
 
 build_qtmozembed()
 {
+    check_sbox2
     # Build qtmozembed
     cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR
     cd $CDR/qtmozembed && $SB2_SHELL make clean
@@ -162,6 +188,7 @@ build_qtmozembed()
 
 build_qmlbrowser()
 {
+    check_sbox2
     # Build qmlmozbrowser
     cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
