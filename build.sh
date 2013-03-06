@@ -17,6 +17,19 @@ OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
 TARGET_QMAKE=qmake
 NEED_SBOX2=false
 
+setup_cross_autoconf_env()
+{
+    export CROSS_COMPILE=1
+    export CROSS_TARGET="--host=arm-none-linux-gnueabi"
+    export CC="$CROSS_COMPILER_PATH-gcc --sysroot=$TARGET_ROOTFS"
+    export CPP=$CROSS_COMPILER_PATH-cpp
+    export CXX="$CROSS_COMPILER_PATH-g++ --sysroot=$TARGET_ROOTFS"
+    export STRIP=$CROSS_COMPILER_PATH-strip
+    export LD="$CROSS_COMPILER_PATH-ld --sysroot=$TARGET_ROOTFS"
+    export AR=$CROSS_COMPILER_PATH-ar
+    export AS=$CROSS_COMPILER_PATH-as
+}
+
 check_sbox_rootfs()
 {
     if [ -e $SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME/usr/lib/libdl.so ]; then
@@ -60,11 +73,13 @@ case $TARGET_CONFIG in
   "harmattan")
     echo "Building for harmattan"
     ROOTFSNAME=HARMATTAN_ARMEL
+    
     SBOX_PATH=/scratchbox
     check_sbox_rootfs
     NEED_SBOX2=true
     MOZCONFIG=mozconfig.qtN9-qt-cross
-
+    export CROSS_COMPILE=1
+    export CROSS_TARGET=--target=arm-none-linux-gnueabi
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
     export MOC="$CDR/cross-tools/host-moc-4.7.4"
     export TARGET_ROOTFS=$SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME
@@ -154,13 +169,13 @@ build_engine()
 build_components()
 {
     # Build Embedlite components
+    setup_cross_autoconf_env
     mkdir -p $CDR/embedlite-components/$OBJTARGETDIR
     if [ ! -f $CDR/embedlite-components/configure ]; then
         cd $CDR/embedlite-components && NO_CONFIGURE=yes ./autogen.sh && cd $CDR
     fi
-    check_sbox2
     if [ ! -f $CDR/embedlite-components/$OBJTARGETDIR/config.status ]; then
-        cd $CDR/embedlite-components/$OBJTARGETDIR && $SB2_SHELL ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
+        cd $CDR/embedlite-components/$OBJTARGETDIR && $SB2_SHELL ../configure $CROSS_TARGET --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
     export echo=echo && $SB2_SHELL make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
     RES=$?
