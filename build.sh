@@ -153,12 +153,12 @@ build_engine()
 
 build_components()
 {
-    check_sbox2
     # Build Embedlite components
     mkdir -p $CDR/embedlite-components/$OBJTARGETDIR
     if [ ! -f $CDR/embedlite-components/configure ]; then
         cd $CDR/embedlite-components && NO_CONFIGURE=yes ./autogen.sh && cd $CDR
     fi
+    check_sbox2
     if [ ! -f $CDR/embedlite-components/$OBJTARGETDIR/config.status ]; then
         cd $CDR/embedlite-components/$OBJTARGETDIR && $SB2_SHELL ../configure --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
