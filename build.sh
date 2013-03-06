@@ -153,6 +153,7 @@ build_engine()
 
 build_components()
 {
+    check_sbox2
     # Build Embedlite components
     mkdir -p $CDR/embedlite-components/$OBJTARGETDIR
     if [ ! -f $CDR/embedlite-components/configure ]; then
