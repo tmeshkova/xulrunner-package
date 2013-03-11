@@ -14,6 +14,7 @@ if [ "$2" != "" ]; then
 CUSTOM_BUILD=$2
 fi
 OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
+HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
 NEED_SBOX2=false
 
@@ -80,6 +81,7 @@ case $TARGET_CONFIG in
     MOZCONFIG=mozconfig.qtN9-qt-cross
     export CROSS_COMPILE=1
     export CROSS_TARGET=--target=arm-none-linux-gnueabi
+    export HOST_QMAKE="$CDR/cross-tools/host-qmake-4.7.4"
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
     export MOC="$CDR/cross-tools/host-moc-4.7.4"
     export HOST_RCC="$CDR/cross-tools/host-rcc-4.7.4"
@@ -95,6 +97,7 @@ case $TARGET_CONFIG in
     check_sbox_rootfs
     NEED_SBOX2=true
     MOZCONFIG=mozconfig.qtN900-qt-cross-x
+    export HOST_QMAKE="$CDR/cross-tools/host-qmake-4.7.4"
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
     export MOC="$CDR/cross-tools/host-moc-4.7.4"
     export HOST_RCC="$CDR/cross-tools/host-rcc-4.7.4"
