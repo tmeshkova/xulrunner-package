@@ -20,6 +20,9 @@ NEED_SBOX2=false
 
 setup_cross_autoconf_env()
 {
+    if [ $NEED_SBOX2 = false ];then
+        return;
+    fi
     export CROSS_COMPILE=1
     export CROSS_TARGET="--host=arm-none-linux-gnueabi"
     export CC="$CROSS_COMPILER_PATH-gcc --sysroot=$TARGET_ROOTFS"
@@ -74,7 +77,7 @@ case $TARGET_CONFIG in
   "harmattan")
     echo "Building for harmattan"
     ROOTFSNAME=HARMATTAN_ARMEL
-    
+
     SBOX_PATH=/scratchbox
     check_sbox_rootfs
     NEED_SBOX2=true
