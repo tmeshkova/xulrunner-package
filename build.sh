@@ -216,7 +216,7 @@ build_qmlbrowser()
 {
     check_sbox2
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed && cd $CDR
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.a INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j4 -C $CDR/qmlmozbrowser
     RES=$?
