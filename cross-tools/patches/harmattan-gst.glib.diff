@@ -1,0 +1,31 @@
+# https://bugzilla.mozilla.org/show_bug.cgi?id=761018#c19
+--- usr/include/glib-2.0/glib/gtype.h.orig	2012-02-21 04:16:52.000000000 -0800
++++ usr/include/glib-2.0/glib/gtype.h	2013-03-21 18:59:39.862256725 -0700
+@@ -1535,11 +1535,11 @@ type_name##_get_type (void) \
+  *
+  * Since: 2.26
+  */
+ #define G_DEFINE_BOXED_TYPE_WITH_CODE(TypeName, type_name, copy_func, free_func, _C_) _G_DEFINE_BOXED_TYPE_BEGIN (TypeName, type_name, copy_func, free_func) {_C_;} _G_DEFINE_TYPE_EXTENDED_END()
+ 
+-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
++#if !defined (__cplusplus) && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7))
+ #define _G_DEFINE_BOXED_TYPE_BEGIN(TypeName, type_name, copy_func, free_func) \
+ GType \
+ type_name##_get_type (void) \
+ { \
+   static volatile gsize g_define_type_id__volatile = 0; \
+--- usr/include/gstreamer-0.10/gst/gstbuffer.h.orig	2013-03-21 19:01:12.350433098 -0700
++++ usr/include/gstreamer-0.10/gst/gstbuffer.h	2013-03-21 18:53:54.000000000 -0700
+@@ -410,11 +410,11 @@ typedef enum {
+  * Combination of all possible fields that can be copied with
+  * gst_buffer_copy_metadata().
+  *
+  * Since: 0.10.13
+  */
+-#define GST_BUFFER_COPY_ALL (GST_BUFFER_COPY_FLAGS | GST_BUFFER_COPY_TIMESTAMPS | GST_BUFFER_COPY_CAPS)
++#define GST_BUFFER_COPY_ALL ((GstBufferCopyFlags) (GST_BUFFER_COPY_FLAGS | GST_BUFFER_COPY_TIMESTAMPS | GST_BUFFER_COPY_CAPS))
+ 
+ /* copies metadata into newly allocated buffer */
+ void            gst_buffer_copy_metadata        (GstBuffer *dest, const GstBuffer *src,
+                                                  GstBufferCopyFlags flags);
+ 
