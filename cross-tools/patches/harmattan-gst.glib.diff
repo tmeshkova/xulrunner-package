@@ -1,6 +1,6 @@
 # https://bugzilla.mozilla.org/show_bug.cgi?id=761018#c19
---- usr/include/glib-2.0/glib/gtype.h.orig	2012-02-21 04:16:52.000000000 -0800
-+++ usr/include/glib-2.0/glib/gtype.h	2013-03-21 18:59:39.862256725 -0700
+--- usr/include/glib-2.0/gobject/gtype.h.orig	2012-02-21 04:16:52.000000000 -0800
++++ usr/include/glib-2.0/gobject/gtype.h	2013-03-21 18:59:39.862256725 -0700
 @@ -1535,11 +1535,11 @@ type_name##_get_type (void) \
   *
   * Since: 2.26
