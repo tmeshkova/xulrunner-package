@@ -202,8 +202,8 @@ build_qtmozembed()
 {
     check_sbox2
     # Build qtmozembed
-    echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR"
-    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR
+    echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive NO_TESTS=1 OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR"
+    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive NO_TESTS=1 OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR CONFIG+=staticlib && cd $CDR
     cd $CDR/qtmozembed && $SB2_SHELL make clean
     $SB2_SHELL make -j4 -C $CDR/qtmozembed
     RES=$?
