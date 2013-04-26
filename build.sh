@@ -3,20 +3,56 @@
 CDR=$(pwd)
 ARCH=`uname -m`
 USERNAME=`whoami`
+EXTRA_ARGS=""
 MOZCONFIG=""
 EXTRAOPTS=""
-TARGET_CONFIG=INVALID_TARGET_NAME
-if [ "$1" != "" ]; then
-TARGET_CONFIG=$1
-fi
+TARGET_CONFIG=
 CUSTOM_BUILD=
-if [ "$2" != "" ]; then
-CUSTOM_BUILD=$2
-fi
-OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
+DEBUG_BUILD=
 HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
 NEED_SBOX2=false
+
+usage()
+{
+    echo "./build.sh -t desktop"
+}
+
+while getopts “hdt:r:p:v” OPTION
+do
+ case $OPTION in
+     h)
+         usage
+         exit 1
+         ;;
+     d)
+         DEBUG_BUILD=1
+         ;;
+     t)
+         TARGET_CONFIG=$OPTARG
+         ;;
+     p)
+         CUSTOM_BUILD=$OPTARG
+         ;;
+     v)
+         VERBOSE=1
+         ;;
+     ?)
+         usage
+         exit
+         ;;
+ esac
+done
+
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD"
+
+if [[ -z $TARGET_CONFIG ]]
+then
+     usage
+     exit 1
+fi
+
+OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
 
 setup_cross_autoconf_env()
 {
@@ -111,6 +147,7 @@ case $TARGET_CONFIG in
     ;;
   "mer")
     echo "Building for Mer"
+    EXTRA_ARGS=" -fullscreen "
     MOZCONFIG=mozconfig.merqtxulrunner
     ;;
   "raspberrypi")
@@ -129,16 +166,23 @@ case $TARGET_CONFIG in
     ;;
 esac
 
+if [ $DEBUG_BUILD ]; then
+OBJTARGETDIR=$OBJTARGETDIR-dbg
+fi
+
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
 # prepare engine mozconfig
 cp -f $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-central/
 MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
+if [ $DEBUG_BUILD ]; then
+echo "Debug build enabled"
+echo "ac_add_options --enable-debug" >> $MOZCONFIG
+echo "ac_add_options --enable-logging" >> $MOZCONFIG
+fi
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
-#echo "ac_add_options --enable-debug" >> $MOZCONFIG
-#echo "ac_add_options --enable-logging" >> $MOZCONFIG
 echo "$EXTRAOPTS" >> $MOZCONFIG
 
 build_engine()
@@ -235,5 +279,5 @@ build_qmlbrowser
 
 echo "
 run test example:
-$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest -url about:license
+$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license
 "
