@@ -46,7 +46,7 @@ done
 
 echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD"
 
-if [[ -z $TARGET_CONFIG ]]
+if [ -z $TARGET_CONFIG ]
 then
      usage
      exit 1
