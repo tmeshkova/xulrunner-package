@@ -193,7 +193,7 @@ build_engine()
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
     if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
-        make -j4 -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j4 -C $CDR/$OBJTARGETDIR/toolkit/library
+        make -j8 -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j9 -C $CDR/$OBJTARGETDIR/toolkit/library
         RES=$?
         if [ "$RES" != "0" ]; then
             echo "Build failed, exit"
@@ -202,7 +202,15 @@ build_engine()
     else
         echo "Full build not ready"
         # build engine, take some time
+        if [ -f $CDR/$OBJTARGETDIR/full_config_date ]; then
+            echo "Already configured"
+        else
+            echo "Need Full configure"
+            MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk configure
+            date +%s > $CDR/$OBJTARGETDIR/full_config_date
+        fi
         MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk build_all
+        #make -j8 -C $CDR/$OBJTARGETDIR
         RES=$?
         if [ "$RES" != "0" ]; then
             echo "Build failed, exit"
