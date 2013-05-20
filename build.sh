@@ -181,6 +181,7 @@ if [ $DEBUG_BUILD ]; then
 echo "Debug build enabled"
 echo "ac_add_options --enable-debug" >> $MOZCONFIG
 echo "ac_add_options --enable-logging" >> $MOZCONFIG
+echo "ac_add_options --disable-optimize" >> $MOZCONFIG
 fi
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
