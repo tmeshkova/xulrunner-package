@@ -186,6 +186,7 @@ fi
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
+echo "mk_add_options AUTOCLOBBER=1" >> $MOZCONFIG
 echo "$EXTRAOPTS" >> $MOZCONFIG
 
 build_engine()
