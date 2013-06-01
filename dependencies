@@ -1,5 +1,5 @@
 HostDesktop: libtool autotools-dev libqt4-dev libqt4-opengl-dev libgstreamer-plugins-base0.10-dev libgstreamer0.10-dev libpango1.0-dev libasound-dev libfreetype6-dev libxt-dev libx11-dev libxext-dev yasm
-Mer: libtool qjson-devel libqtopengl-devel libqt-devel libXt-devel libXext-devel alsa-lib-devel dbus-devel dbus-glib-devel gstreamer-devel nspr-devel nss-devel autoconf213 zip pango-devel gst-plugins-base-devel yasm
+Mer: libtool qjson-devel libqtopengl-devel libqt-devel libXt-devel libXext-devel alsa-lib-devel dbus-devel dbus-glib-devel gstreamer-devel nspr-devel nss-devel autoconf213 zip pango-devel gst-plugins-base-devel yasm qtest-qml-devel
 Rsppi-gtk: libgtk+2.0-dev libgconf2-dev
 Rsppi-qt: libqtbase5.0-dev
 Harmattan: unzip libqjson-dev
