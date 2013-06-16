@@ -13,6 +13,7 @@ EXTRAQTMOZEMBEDFLAGS="NO_TESTS=1"
 HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
 NEED_SBOX2=false
+BUILD_X=false
 
 usage()
 {
@@ -108,7 +109,12 @@ check_sbox2()
 
 case $TARGET_CONFIG in
   "desktop")
-    echo "Building for desktop"
+    QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
+    if [ "$QT_VERSION" = "5" ]; then
+      BUILD_X=true
+      EXTRAQTMOZEMBEDFLAGS=""
+    fi
+    echo "Building for desktop: $QT_VERSION"
     MOZCONFIG=mozconfig.qtdesktop
     ;;
   "harmattan")
@@ -182,6 +188,9 @@ echo "Debug build enabled"
 echo "ac_add_options --enable-debug" >> $MOZCONFIG
 echo "ac_add_options --enable-logging" >> $MOZCONFIG
 echo "ac_add_options --disable-optimize" >> $MOZCONFIG
+fi
+if [ $BUILD_X ]; then
+echo "ac_add_options --without-x" >> $MOZCONFIG
 fi
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
@@ -272,7 +281,7 @@ build_qmlbrowser()
 {
     check_sbox2
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j4 -C $CDR/qmlmozbrowser
     RES=$?
@@ -280,9 +289,7 @@ build_qmlbrowser()
         echo "Build failed, exit"
         exit $RES;
     fi
-    if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest ]; then
-        cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
-    fi
+    cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
 }
 
 build_engine
