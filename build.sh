@@ -55,6 +55,7 @@ then
 fi
 
 OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
+QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
 
 setup_cross_autoconf_env()
 {
@@ -109,7 +110,6 @@ check_sbox2()
 
 case $TARGET_CONFIG in
   "desktop")
-    QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
     if [ "$QT_VERSION" = "5" ]; then
       EXTRAQTMOZEMBEDFLAGS=""
     fi
@@ -291,10 +291,10 @@ build_qmlbrowser()
     cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
 }
 
-build_engine
-build_components
-build_qtmozembed
-build_qmlbrowser
+#build_engine
+#build_components
+#build_qtmozembed
+#build_qmlbrowser
 
 echo -n "
 prepare run-time environment:
@@ -317,7 +317,8 @@ echo -n "
 run test example:
 $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license"
 if [ "$QT_VERSION" = "5" ]; then
-echo -n "\n$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTestQt5 $EXTRA_ARGS -url about:license"
+echo
+echo -n "$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTestQt5 $EXTRA_ARGS -url about:license"
 fi
-echo "\n"
+echo;echo;
 
