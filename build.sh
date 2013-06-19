@@ -291,10 +291,10 @@ build_qmlbrowser()
     cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
 }
 
-#build_engine
-#build_components
-#build_qtmozembed
-#build_qmlbrowser
+build_engine
+build_components
+build_qtmozembed
+build_qmlbrowser
 
 echo -n "
 prepare run-time environment:
@@ -305,6 +305,7 @@ echo "
 export QML2_IMPORT_PATH=$CDR/qtmozembed/$OBJTARGETDIR/qmlplugin5
 
 run unit-tests:
+export QTTESTSROOT=$CDR/qtmozembed/tests
 export QTTESTSLOCATION=$CDR/qtmozembed/tests/auto/$TARGET_CONFIG-qt$QT_VERSION
 export QTMOZEMBEDOBJDIR=$CDR/qtmozembed/$OBJTARGETDIR
 $CDR/qtmozembed/tests/auto/run-tests.sh
