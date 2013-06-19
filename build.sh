@@ -111,7 +111,6 @@ case $TARGET_CONFIG in
   "desktop")
     QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
     if [ "$QT_VERSION" = "5" ]; then
-      BUILD_X=true
       EXTRAQTMOZEMBEDFLAGS=""
     fi
     echo "Building for desktop: $QT_VERSION"
@@ -297,9 +296,28 @@ build_components
 build_qtmozembed
 build_qmlbrowser
 
+echo -n "
+prepare run-time environment:
+export LD_LIBRARY_PATH=$CDR/qtmozembed/$OBJTARGETDIR/src"
+
+if [ "$QT_VERSION" = "5" ]; then
 echo "
-run test example:
-export QTTESTPATH=$CDR/qtmozembed/$OBJTARGETDIR/tests
-export LD_LIBRARY_PATH=$CDR/qtmozembed/$OBJTARGETDIR/src
-$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license
+export QML2_IMPORT_PATH=$CDR/qtmozembed/$OBJTARGETDIR/qmlplugin5
+
+run unit-tests:
+export QTTESTSLOCATION=$CDR/qtmozembed/tests/auto/$TARGET_CONFIG-qt$QT_VERSION
+export QTMOZEMBEDOBJDIR=$CDR/qtmozembed/$OBJTARGETDIR
+$CDR/qtmozembed/tests/auto/run-tests.sh
 "
+else
+echo
+fi
+
+echo -n "
+run test example:
+$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license"
+if [ "$QT_VERSION" = "5" ]; then
+echo -n "\n$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTestQt5 $EXTRA_ARGS -url about:license"
+fi
+echo "\n"
+
