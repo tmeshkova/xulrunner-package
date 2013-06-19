@@ -281,7 +281,7 @@ build_qmlbrowser()
 {
     check_sbox2
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j4 -C $CDR/qmlmozbrowser
     RES=$?
@@ -299,6 +299,7 @@ build_qmlbrowser
 
 echo "
 run test example:
-export LD_LIBRARY_PATH=$CDR/qtmozembed/$OBJTARGETDIR
+export QTTESTPATH=$CDR/qtmozembed/$OBJTARGETDIR/tests
+export LD_LIBRARY_PATH=$CDR/qtmozembed/$OBJTARGETDIR/src
 $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license
 "
