@@ -300,9 +300,9 @@ echo -n "
 prepare run-time environment:
 export LD_LIBRARY_PATH=$CDR/qtmozembed/$OBJTARGETDIR/src"
 
-if [ "$QT_VERSION" = "5" ]; then
 echo "
-export QML2_IMPORT_PATH=$CDR/qtmozembed/$OBJTARGETDIR/qmlplugin5
+export QML_IMPORT_PATH=$CDR/qtmozembed/$OBJTARGETDIR/qmlplugin$QT_VERSION
+export QML2_IMPORT_PATH=$CDR/qtmozembed/$OBJTARGETDIR/qmlplugin$QT_VERSION
 
 run unit-tests:
 export QTTESTSROOT=$CDR/qtmozembed/tests
@@ -310,9 +310,6 @@ export QTTESTSLOCATION=$CDR/qtmozembed/tests/auto/$TARGET_CONFIG-qt$QT_VERSION
 export QTMOZEMBEDOBJDIR=$CDR/qtmozembed/$OBJTARGETDIR
 $CDR/qtmozembed/tests/auto/run-tests.sh
 "
-else
-echo
-fi
 
 echo -n "
 run test example:
