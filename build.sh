@@ -265,7 +265,6 @@ build_qtmozembed()
     check_sbox2
     # Build qtmozembed
     echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR"
-    cd $CDR/qtmozembed && $SB2_SHELL make distclean
     cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR
     cd $CDR/qtmozembed && $SB2_SHELL make clean
     $SB2_SHELL make -j4 -C $CDR/qtmozembed
@@ -280,7 +279,6 @@ build_qmlbrowser()
 {
     check_sbox2
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && $SB2_SHELL make distclean
     cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j4 -C $CDR/qmlmozbrowser
