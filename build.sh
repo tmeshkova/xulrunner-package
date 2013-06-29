@@ -15,13 +15,14 @@ TARGET_QMAKE=qmake
 NEED_SBOX2=false
 BUILD_X=false
 GLPROVIDER=
+BUILD_QT5QUICK1=
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdxg:t:r:p:v” OPTION
+while getopts “hdxg:t:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -41,7 +42,7 @@ do
          CUSTOM_BUILD=$OPTARG
          ;;
      x)
-         BUILD_X="true"
+         BUILD_X=true
          ;;
      v)
          VERBOSE=1
@@ -121,6 +122,7 @@ case $TARGET_CONFIG in
       EXTRAQTMOZEMBEDFLAGS=""
     fi
     echo "Building for desktop: $QT_VERSION"
+    BUILD_QT5QUICK1=true
     MOZCONFIG=mozconfig.qtdesktop
     ;;
   "harmattan")
@@ -264,7 +266,7 @@ build_components()
     if [ ! -f $CDR/embedlite-components/$OBJTARGETDIR/config.status ]; then
         cd $CDR/embedlite-components/$OBJTARGETDIR && $SB2_SHELL ../configure $CROSS_TARGET --prefix=/usr --with-engine-path=$CDR/$OBJTARGETDIR && cd $CDR
     fi
-    export echo=echo && $SB2_SHELL make -j4 -C $CDR/embedlite-components/$OBJTARGETDIR
+    export echo=echo && $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/embedlite-components/$OBJTARGETDIR
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
@@ -278,9 +280,9 @@ build_qtmozembed()
     check_sbox2
     # Build qtmozembed
     echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR"
-    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR
+    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS BUILD_QT5QUICK1=$BUILD_QT5QUICK1 DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR
     cd $CDR/qtmozembed && $SB2_SHELL make clean
-    $SB2_SHELL make -j4 -C $CDR/qtmozembed
+    $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qtmozembed
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
@@ -292,9 +294,9 @@ build_qmlbrowser()
 {
     check_sbox2
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
-    $SB2_SHELL make -j4 -C $CDR/qmlmozbrowser
+    $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qmlmozbrowser
     RES=$?
     if [ "$RES" != "0" ]; then
         echo "Build failed, exit"
