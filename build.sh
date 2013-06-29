@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CDR=$(pwd)
 ARCH=`uname -m`
@@ -21,7 +21,7 @@ usage()
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdg:t:r:p:v” OPTION
+while getopts “hdxg:t:r:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -40,6 +40,9 @@ do
      p)
          CUSTOM_BUILD=$OPTARG
          ;;
+     x)
+         BUILD_X="true"
+         ;;
      v)
          VERBOSE=1
          ;;
@@ -50,7 +53,7 @@ do
  esac
 done
 
-echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER"
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X"
 
 if [ -z $TARGET_CONFIG ]
 then
@@ -63,7 +66,7 @@ QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
 
 setup_cross_autoconf_env()
 {
-    if [ $NEED_SBOX2 = false ];then
+    if [ $NEED_SBOX2 == false ];then
         return;
     fi
     export CROSS_COMPILE=1
@@ -92,18 +95,18 @@ check_sbox_rootfs()
 
 check_sbox2()
 {
-    if [ $NEED_SBOX2 = false ];then
+    if [ $NEED_SBOX2 == false ];then
         return;
     fi
     export SB2_SHELL="sb2 -t $TARGET_CONFIG"
     which sb2;
-    if [ "$?" = "1" ]; then
+    if [ "$?" == "1" ]; then
       echo "Error:\n\tscratchbox2 must be installed for harmattan cross compile environment for running rcc and moc qt tools";
       echo "\trun:\tsudo apt-get install scratchbox2"
       exit 1;
     fi
     sb2 -t harmattan echo
-    if [ "$?" = "1" ]; then
+    if [ "$?" == "1" ]; then
       echo "scratchbox2 must have \"harmattan\" target wrapped around harmattan rootfs";
       echo "  execute: sudo /etc/init.d/scratchbox-core stop"
       echo "  and run:\n  cd $SBOX_PATH/users/$USERNAME/targets/$ROOTFSNAME;"
@@ -114,7 +117,7 @@ check_sbox2()
 
 case $TARGET_CONFIG in
   "desktop")
-    if [ "$QT_VERSION" = "5" ]; then
+    if [ "$QT_VERSION" == "5" ]; then
       EXTRAQTMOZEMBEDFLAGS=""
     fi
     echo "Building for desktop: $QT_VERSION"
@@ -192,8 +195,8 @@ echo "ac_add_options --enable-debug" >> $MOZCONFIG
 echo "ac_add_options --enable-logging" >> $MOZCONFIG
 echo "ac_add_options --disable-optimize" >> $MOZCONFIG
 fi
-if [ $BUILD_X ]; then
-echo "ac_add_options --without-x" >> $MOZCONFIG
+if [ $BUILD_X == true -o "$GLPROVIDER" == "GLX" ]; then
+echo "ac_add_options --with-x" >> $MOZCONFIG
 fi
 if [ $GLPROVIDER ]; then
 echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIG
@@ -323,7 +326,7 @@ $CDR/qtmozembed/tests/auto/run-tests.sh
 echo -n "
 run test example:
 $CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license"
-if [ "$QT_VERSION" = "5" ]; then
+if [ "$QT_VERSION" == "5" ]; then
 echo
 echo -n "$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTestQt5 $EXTRA_ARGS -url about:license"
 fi
