@@ -14,13 +14,14 @@ HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
 NEED_SBOX2=false
 BUILD_X=false
+GLPROVIDER=
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdt:r:p:v” OPTION
+while getopts “hdg:t:r:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -32,6 +33,9 @@ do
          ;;
      t)
          TARGET_CONFIG=$OPTARG
+         ;;
+     g)
+         GLPROVIDER=$OPTARG
          ;;
      p)
          CUSTOM_BUILD=$OPTARG
@@ -46,7 +50,7 @@ do
  esac
 done
 
-echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD"
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER"
 
 if [ -z $TARGET_CONFIG ]
 then
@@ -191,6 +195,12 @@ fi
 if [ $BUILD_X ]; then
 echo "ac_add_options --without-x" >> $MOZCONFIG
 fi
+if [ $GLPROVIDER ]; then
+echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIG
+fi
+CPUNUM=`grep -c ^processor /proc/cpuinfo`
+PARALLEL_JOBS=`echo $CPUNUM*2+1 | bc`
+echo "mk_add_options MOZ_MAKE_FLAGS=\"-j$PARALLEL_JOBS\"" >> $MOZCONFIG
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
