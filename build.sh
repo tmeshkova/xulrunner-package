@@ -204,7 +204,9 @@ if [ $GLPROVIDER ]; then
 echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIG
 fi
 CPUNUM=`grep -c ^processor /proc/cpuinfo`
-PARALLEL_JOBS=`echo $CPUNUM*2+1 | bc`
+ans=$(( CPUNUM * 2 + 1 ))
+PARALLEL_JOBS=$ans
+echo "PARALLEL_JOBS=$PARALLEL_JOBS"
 echo "mk_add_options MOZ_MAKE_FLAGS=\"-j$PARALLEL_JOBS\"" >> $MOZCONFIG
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
 echo "ac_add_options --disable-tests" >> $MOZCONFIG
