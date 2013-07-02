@@ -12,17 +12,18 @@ DEBUG_BUILD=
 EXTRAQTMOZEMBEDFLAGS="NO_TESTS=1"
 HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
-NEED_SBOX2=false
-BUILD_X=false
+NEED_SBOX2=
+BUILD_X=
 GLPROVIDER=
 BUILD_QT5QUICK1=
+BUILD_QTMOZEMBEDSTATIC=
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdxg:t:p:v” OPTION
+while getopts “hdx:s:g:t:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -42,7 +43,10 @@ do
          CUSTOM_BUILD=$OPTARG
          ;;
      x)
-         BUILD_X=true
+         BUILD_X=$OPTARG
+         ;;
+     s)
+         BUILD_QTMOZEMBEDSTATIC=$OPTARG
          ;;
      v)
          VERBOSE=1
@@ -67,7 +71,7 @@ QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
 
 setup_cross_autoconf_env()
 {
-    if [ $NEED_SBOX2 == false ];then
+    if [ !$NEED_SBOX2 ];then
         return;
     fi
     export CROSS_COMPILE=1
@@ -96,7 +100,7 @@ check_sbox_rootfs()
 
 check_sbox2()
 {
-    if [ $NEED_SBOX2 == false ];then
+    if [ !$NEED_SBOX2 ];then
         return;
     fi
     export SB2_SHELL="sb2 -t $TARGET_CONFIG"
@@ -197,7 +201,10 @@ echo "ac_add_options --enable-debug" >> $MOZCONFIG
 echo "ac_add_options --enable-logging" >> $MOZCONFIG
 echo "ac_add_options --disable-optimize" >> $MOZCONFIG
 fi
-if [ $BUILD_X == true -o "$GLPROVIDER" == "GLX" ]; then
+if [ "$GLPROVIDER" == "GLX" ]; then
+echo "ac_add_options --with-x" >> $MOZCONFIG
+fi
+if [ $BUILD_X ]; then
 echo "ac_add_options --with-x" >> $MOZCONFIG
 fi
 if [ $GLPROVIDER ]; then
@@ -281,8 +288,12 @@ build_qtmozembed()
 {
     check_sbox2
     # Build qtmozembed
-    echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR"
-    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS BUILD_QT5QUICK1=$BUILD_QT5QUICK1 DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR
+    STATIC_ARGS=
+    if [ $BUILD_QTMOZEMBEDSTATIC ]; then
+      STATIC_ARGS="CONFIG+=staticlib"
+    fi
+    echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS OBJ_PATH=$CDR/$OBJTARGETDIR $STATIC_ARGS OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR"
+    cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS BUILD_QT5QUICK1=$BUILD_QT5QUICK1 $STATIC_ARGS DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin OBJ_PATH=$CDR/$OBJTARGETDIR OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR
     cd $CDR/qtmozembed && $SB2_SHELL make clean
     $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qtmozembed
     RES=$?
@@ -296,7 +307,11 @@ build_qmlbrowser()
 {
     check_sbox2
     # Build qmlmozbrowser
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.so INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    LIBSUFFIX="so"
+    if [ $BUILD_QTMOZEMBEDSTATIC ]; then
+      LIBSUFFIX="a"
+    fi
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qmlmozbrowser
     RES=$?
