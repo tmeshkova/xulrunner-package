@@ -12,7 +12,7 @@ DEBUG_BUILD=
 EXTRAQTMOZEMBEDFLAGS="NO_TESTS=1"
 HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
-NEED_SBOX2=
+NEED_SBOX2=false
 BUILD_X=
 GLPROVIDER=
 BUILD_QT5QUICK1=
@@ -71,7 +71,7 @@ QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
 
 setup_cross_autoconf_env()
 {
-    if [ !$NEED_SBOX2 ];then
+    if [ $NEED_SBOX2 == false ];then
         return;
     fi
     export CROSS_COMPILE=1
@@ -100,7 +100,7 @@ check_sbox_rootfs()
 
 check_sbox2()
 {
-    if [ !$NEED_SBOX2 ];then
+    if [ $NEED_SBOX2 == false ];then
         return;
     fi
     export SB2_SHELL="sb2 -t $TARGET_CONFIG"
@@ -308,7 +308,7 @@ build_qmlbrowser()
     check_sbox2
     # Build qmlmozbrowser
     LIBSUFFIX="so"
-    if [ $BUILD_QTMOZEMBEDSTATIC ]; then
+    if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
       LIBSUFFIX="a"
     fi
     cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
