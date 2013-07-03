@@ -58,7 +58,7 @@ do
  esac
 done
 
-echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X"
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION"
 
 if [ -z $TARGET_CONFIG ]
 then
@@ -68,6 +68,11 @@ fi
 
 OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
 QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
+setup_qt_version()
+{
+  check_sbox2
+  QT_VERSION=`$SB2_SHELL $TARGET_QMAKE  -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
+}
 
 setup_cross_autoconf_env()
 {
@@ -122,7 +127,7 @@ check_sbox2()
 
 case $TARGET_CONFIG in
   "desktop")
-    if [ "$QT_VERSION" == "5" ]; then
+    if [ $QT_VERSION == 5 ]; then
       EXTRAQTMOZEMBEDFLAGS=""
     fi
     echo "Building for desktop: $QT_VERSION"
@@ -136,6 +141,7 @@ case $TARGET_CONFIG in
     SBOX_PATH=/scratchbox
     check_sbox_rootfs
     NEED_SBOX2=true
+    setup_qt_version
     MOZCONFIG=mozconfig.qtN9-qt-cross
     export CROSS_COMPILE=1
     export CROSS_TARGET=--target=arm-none-linux-gnueabi
@@ -154,6 +160,7 @@ case $TARGET_CONFIG in
     SBOX_PATH=/scratchbox
     check_sbox_rootfs
     NEED_SBOX2=true
+    setup_qt_version
     MOZCONFIG=mozconfig.qtN900-qt-cross-x
     export HOST_QMAKE="$CDR/cross-tools/host-qmake-4.7.4"
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
@@ -190,6 +197,7 @@ if [ $DEBUG_BUILD ]; then
 OBJTARGETDIR=$OBJTARGETDIR-dbg
 fi
 
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION"
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
 # prepare engine mozconfig
