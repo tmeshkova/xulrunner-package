@@ -17,13 +17,14 @@ BUILD_X=
 GLPROVIDER=
 BUILD_QT5QUICK1=
 BUILD_QTMOZEMBEDSTATIC=
+OBJDIRS=
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdx:s:g:t:p:v” OPTION
+while getopts “hdo:x:s:g:t:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -38,6 +39,9 @@ do
          ;;
      g)
          GLPROVIDER=$OPTARG
+         ;;
+     o)
+         OBJDIRS=$OPTARG
          ;;
      p)
          CUSTOM_BUILD=$OPTARG
@@ -197,6 +201,7 @@ if [ $DEBUG_BUILD ]; then
 OBJTARGETDIR=$OBJTARGETDIR-dbg
 fi
 
+
 echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION"
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
@@ -233,9 +238,21 @@ build_engine()
 {
     # Build engine
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
+    export MOZCONFIG=$MOZCONFIG
     if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
-        make -j8 -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j9 -C $CDR/$OBJTARGETDIR/toolkit/library
+        if [ $OBJDIRS ]; then
+            MAKECMD=
+            OBJDIRS=`echo $OBJDIRS | sed 's/,/ /g'`;
+            for str in $OBJDIRS;do
+                MAKECMD="$MAKECMD make -j$PARALLEL_JOBS -C $OBJTARGETDIR/$str &&"
+            done
+            MAKECMD=`echo $MAKECMD | sed 's/\&\&$//'`
+            echo "OBJDIRS=$OBJDIRS"
+            echo "MAKECMD=$MAKECMD"
+            $MAKECMD
+        fi
+        make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/toolkit/library
         RES=$?
         if [ "$RES" != "0" ]; then
             echo "Build failed, exit"
