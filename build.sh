@@ -206,33 +206,34 @@ echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUST
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
 # prepare engine mozconfig
-cp -f $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-central/
+cp -f $CDR/mozilla-central/embedding/embedlite/config/$MOZCONFIG $CDR/mozilla-central/$MOZCONFIG.temp
+MOZCONFIGTEMP=$CDR/mozilla-central/$MOZCONFIG.temp
 MOZCONFIG=$CDR/mozilla-central/$MOZCONFIG
 if [ $DEBUG_BUILD ]; then
 echo "Debug build enabled"
-echo "ac_add_options --enable-debug" >> $MOZCONFIG
-echo "ac_add_options --enable-logging" >> $MOZCONFIG
-echo "ac_add_options --disable-optimize" >> $MOZCONFIG
+echo "ac_add_options --enable-debug" >> $MOZCONFIGTEMP
+echo "ac_add_options --enable-logging" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-optimize" >> $MOZCONFIGTEMP
 fi
 if [ "$GLPROVIDER" == "GLX" ]; then
-echo "ac_add_options --with-x" >> $MOZCONFIG
+echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
 fi
 if [ $BUILD_X ]; then
-echo "ac_add_options --with-x" >> $MOZCONFIG
+echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
 fi
 if [ $GLPROVIDER ]; then
-echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIG
+echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIGTEMP
 fi
 CPUNUM=`grep -c ^processor /proc/cpuinfo`
 ans=$(( CPUNUM * 2 + 1 ))
 PARALLEL_JOBS=$ans
 echo "PARALLEL_JOBS=$PARALLEL_JOBS"
-echo "mk_add_options MOZ_MAKE_FLAGS=\"-j$PARALLEL_JOBS\"" >> $MOZCONFIG
-echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIG
-echo "ac_add_options --disable-tests" >> $MOZCONFIG
-echo "ac_add_options --disable-accessibility" >> $MOZCONFIG
-echo "mk_add_options AUTOCLOBBER=1" >> $MOZCONFIG
-echo "$EXTRAOPTS" >> $MOZCONFIG
+echo "mk_add_options MOZ_MAKE_FLAGS=\"-j$PARALLEL_JOBS\"" >> $MOZCONFIGTEMP
+echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-tests" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-accessibility" >> $MOZCONFIGTEMP
+echo "mk_add_options AUTOCLOBBER=1" >> $MOZCONFIGTEMP
+echo "$EXTRAOPTS" >> $MOZCONFIGTEMP
 
 build_engine()
 {
@@ -264,6 +265,7 @@ build_engine()
         if [ -f $CDR/$OBJTARGETDIR/full_config_date ]; then
             echo "Already configured"
         else
+            cp -f $MOZCONFIGTEMP $MOZCONFIG
             echo "Need Full configure"
             MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk configure
             date +%s > $CDR/$OBJTARGETDIR/full_config_date
