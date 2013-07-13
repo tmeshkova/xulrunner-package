@@ -273,6 +273,7 @@ build_engine()
         MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk build_all
         #make -j8 -C $CDR/$OBJTARGETDIR
         RES=$?
+        date +%s > $CDR/$OBJTARGETDIR/full_config_date
         if [ "$RES" != "0" ]; then
             echo "Build failed, exit"
             exit $RES;
