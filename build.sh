@@ -223,6 +223,7 @@ echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
 fi
 if [ $GLPROVIDER ]; then
 echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIGTEMP
+OBJTARGETDIR=$OBJTARGETDIR-$GLPROVIDER
 fi
 CPUNUM=`grep -c ^processor /proc/cpuinfo`
 ans=$(( CPUNUM * 2 + 1 ))
