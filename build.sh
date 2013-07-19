@@ -337,10 +337,14 @@ build_qmlbrowser()
     check_sbox2
     # Build qmlmozbrowser
     LIBSUFFIX="so"
+    LIBQTEMBEDWIDGET="libqtembedwidget"
     if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
       LIBSUFFIX="a"
     fi
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/libqtembedwidget.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    if [ $QT_VERSION == 5 ]; then
+      LIBQTEMBEDWIDGET="libqt5embedwidget"
+    fi
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/$LIBQTEMBEDWIDGET.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qmlmozbrowser
     RES=$?
