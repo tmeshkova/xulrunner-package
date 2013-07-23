@@ -338,7 +338,7 @@ build_qmlbrowser()
     # Build qmlmozbrowser
     LIBSUFFIX="so"
     LIBQTEMBEDWIDGET="libqtembedwidget"
-    if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
+    if [ $BUILD_QTMOZEMBEDSTATIC ]; then
       LIBSUFFIX="a"
     fi
     if [ $QT_VERSION == 5 ]; then
