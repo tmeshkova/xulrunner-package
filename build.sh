@@ -13,7 +13,7 @@ EXTRAQTMOZEMBEDFLAGS="NO_TESTS=1"
 HOST_QMAKE=qmake
 TARGET_QMAKE=qmake
 NEED_SBOX2=false
-BUILD_X=
+BUILD_X=false
 GLPROVIDER=
 BUILD_QT5QUICK1=
 BUILD_QTMOZEMBEDSTATIC=
@@ -215,12 +215,21 @@ echo "ac_add_options --enable-debug" >> $MOZCONFIGTEMP
 echo "ac_add_options --enable-logging" >> $MOZCONFIGTEMP
 echo "ac_add_options --disable-optimize" >> $MOZCONFIGTEMP
 fi
+if [ $BUILD_X == false ];then
+echo "ac_add_options --without-x" >> $MOZCONFIGTEMP
+else
+echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
+fi
 if [ "$GLPROVIDER" == "GLX" ]; then
 echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
+else
+  if [ !$GLPROVIDER ]; then
+    if [ $TARGET_CONFIG == "desktop" ]; then
+      echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
+    fi
+  fi
 fi
-if [ $BUILD_X ]; then
-echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
-fi
+
 if [ $GLPROVIDER ]; then
 echo "ac_add_options --with-gl-provider=$GLPROVIDER" >> $MOZCONFIGTEMP
 OBJTARGETDIR=$OBJTARGETDIR-$GLPROVIDER
