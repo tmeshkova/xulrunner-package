@@ -213,7 +213,10 @@ if [ $DEBUG_BUILD ]; then
 echo "Debug build enabled"
 echo "ac_add_options --enable-debug" >> $MOZCONFIGTEMP
 echo "ac_add_options --enable-logging" >> $MOZCONFIGTEMP
-echo "ac_add_options --disable-optimize" >> $MOZCONFIGTEMP
+if [[ "$ARCH" != *arm* ]]
+then
+  echo "ac_add_options --disable-optimize" >> $MOZCONFIGTEMP
+fi
 fi
 if [ $BUILD_X == false ];then
 echo "ac_add_options --without-x" >> $MOZCONFIGTEMP
