@@ -258,13 +258,11 @@ build_engine()
         if [ $OBJDIRS ]; then
             MAKECMD=
             OBJDIRS=`echo $OBJDIRS | sed 's/,/ /g'`;
-            for str in $OBJDIRS;do
-                MAKECMD="$MAKECMD make -j$PARALLEL_JOBS -C $OBJTARGETDIR/$str &&"
-            done
-            MAKECMD=`echo $MAKECMD | sed 's/\&\&$//'`
             echo "OBJDIRS=$OBJDIRS"
-            echo "MAKECMD=$MAKECMD"
-            $MAKECMD
+            for str in $OBJDIRS;do
+                echo "MAKECMD=make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/$str"
+                make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/$str
+            done
         fi
         make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/toolkit/library
         RES=$?
