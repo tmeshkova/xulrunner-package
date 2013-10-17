@@ -245,6 +245,8 @@ echo "mk_add_options MOZ_MAKE_FLAGS=\"-j$PARALLEL_JOBS\"" >> $MOZCONFIGTEMP
 echo "mk_add_options MOZ_OBJDIR=\"@TOPSRCDIR@/../$OBJTARGETDIR\"" >> $MOZCONFIGTEMP
 echo "ac_add_options --disable-tests" >> $MOZCONFIGTEMP
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-dbus" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-necko-wifi" >> $MOZCONFIGTEMP
 echo "mk_add_options AUTOCLOBBER=1" >> $MOZCONFIGTEMP
 echo "$EXTRAOPTS" >> $MOZCONFIGTEMP
 
@@ -262,6 +264,11 @@ build_engine()
             for str in $OBJDIRS;do
                 echo "MAKECMD=make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/$str"
                 make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/$str
+                RES=$?
+                if [ "$RES" != "0" ]; then
+                    echo "Build failed at $CDR/$OBJTARGETDIR/$str, exit"
+                    exit $RES;
+                fi
             done
         fi
         make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/toolkit/library
