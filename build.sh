@@ -255,6 +255,7 @@ build_engine()
     # Build engine
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
     export MOZCONFIG=$MOZCONFIG
+    cd $CDR/mozilla-central
     if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
         if [ $OBJDIRS ]; then
@@ -267,6 +268,7 @@ build_engine()
                 RES=$?
                 if [ "$RES" != "0" ]; then
                     echo "Build failed at $CDR/$OBJTARGETDIR/$str, exit"
+                    cd $CDR
                     exit $RES;
                 fi
             done
@@ -275,6 +277,7 @@ build_engine()
         RES=$?
         if [ "$RES" != "0" ]; then
             echo "Build failed, exit"
+            cd $CDR
             exit $RES;
         fi
     else
@@ -285,15 +288,16 @@ build_engine()
         else
             cp -f $MOZCONFIGTEMP $MOZCONFIG
             echo "Need Full configure"
-            MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk configure
+            MOZCONFIG=$MOZCONFIG ./mach configure
             date +%s > $CDR/$OBJTARGETDIR/full_config_date
         fi
-        MOZCONFIG=$MOZCONFIG make -C mozilla-central -f client.mk build_all
+        MOZCONFIG=$MOZCONFIG ./mach build
         #make -j8 -C $CDR/$OBJTARGETDIR
         RES=$?
         date +%s > $CDR/$OBJTARGETDIR/full_config_date
         if [ "$RES" != "0" ]; then
             echo "Build failed, exit"
+            cd $CDR
             exit $RES;
         fi
         # disable symlinks for python stub
@@ -304,6 +308,7 @@ build_engine()
         date +%s > $CDR/$OBJTARGETDIR/full_build_date
     fi
 
+    cd $CDR
     if [ ! -f $CDR/$OBJTARGETDIR/dist/bin/libxul.so ]; then
         echo "Something went wrong, need full build"
         exit 1;
