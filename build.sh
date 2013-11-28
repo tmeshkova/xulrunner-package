@@ -226,7 +226,7 @@ fi
 if [ "$GLPROVIDER" == "GLX" ]; then
 echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
 else
-  if [ !$GLPROVIDER ]; then
+  if [ "$GLPROVIDER" == "" ]; then
     if [ $TARGET_CONFIG == "desktop" ]; then
       echo "ac_add_options --with-x" >> $MOZCONFIGTEMP
     fi
