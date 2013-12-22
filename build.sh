@@ -352,7 +352,7 @@ build_qtmozembed()
     check_sbox2
     # Build qtmozembed
     STATIC_ARGS=
-    if [ $BUILD_QTMOZEMBEDSTATIC ]; then
+    if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
       STATIC_ARGS="CONFIG+=staticlib"
     fi
     echo "BUILD: cd $CDR/qtmozembed && $SB2_SHELL $TARGET_QMAKE -recursive $EXTRAQTMOZEMBEDFLAGS OBJ_PATH=$CDR/$OBJTARGETDIR $STATIC_ARGS OBJ_BUILD_PATH=$OBJTARGETDIR && cd $CDR"
@@ -372,7 +372,7 @@ build_qmlbrowser()
     # Build qmlmozbrowser
     LIBSUFFIX="so"
     LIBQTEMBEDWIDGET="libqtembedwidget"
-    if [ $BUILD_QTMOZEMBEDSTATIC ]; then
+    if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
       LIBSUFFIX="a"
     fi
     if [ $QT_VERSION == 5 ]; then
