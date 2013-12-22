@@ -15,7 +15,7 @@ TARGET_QMAKE=qmake
 NEED_SBOX2=false
 BUILD_X=false
 GLPROVIDER=
-BUILD_QT5QUICK1=false
+BUILD_QT5QUICK1=
 BUILD_QTMOZEMBEDSTATIC=false
 OBJDIRS=
 BUILD_BACKEND=false
@@ -413,7 +413,7 @@ $CDR/qtmozembed/tests/auto/run-tests.sh
 
 echo -n "
 run test example:"
-if [ $BUILD_QT5QUICK1 == true ]; then
+if [ $BUILD_QT5QUICK1 ]; then
 echo
 echo -n "$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license"
 fi
