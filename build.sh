@@ -15,21 +15,29 @@ TARGET_QMAKE=qmake
 NEED_SBOX2=false
 BUILD_X=false
 GLPROVIDER=
-BUILD_QT5QUICK1=
-BUILD_QTMOZEMBEDSTATIC=
+BUILD_QT5QUICK1=false
+BUILD_QTMOZEMBEDSTATIC=false
 OBJDIRS=
+BUILD_BACKEND=false
+ENGINE_ONLY=false
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdo:x:s:g:t:p:v” OPTION
+while getopts “hdceo:x:s:g:t:p:v” OPTION
 do
  case $OPTION in
      h)
          usage
          exit 1
+         ;;
+     c)
+         BUILD_BACKEND=true
+         ;;
+     e)
+         ENGINE_ONLY=true
          ;;
      d)
          DEBUG_BUILD=1
@@ -213,6 +221,7 @@ if [ $DEBUG_BUILD ]; then
 echo "Debug build enabled"
 echo "ac_add_options --enable-debug" >> $MOZCONFIGTEMP
 echo "ac_add_options --enable-logging" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-optimize" >> $MOZCONFIGTEMP
 if [[ "$ARCH" != *arm* ]]
 then
   echo "ac_add_options --disable-optimize" >> $MOZCONFIGTEMP
@@ -258,6 +267,9 @@ build_engine()
     cd $CDR/mozilla-central
     if [ -f $CDR/$OBJTARGETDIR/full_build_date ]; then
         echo "Full build ready"
+        if [ $BUILD_BACKEND == true ]; then
+          MOZCONFIG=$MOZCONFIG ./mach build-backend
+        fi
         if [ $OBJDIRS ]; then
             MAKECMD=
             OBJDIRS=`echo $OBJDIRS | sed 's/,/ /g'`;
@@ -267,7 +279,7 @@ build_engine()
                 make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/$str
                 RES=$?
                 if [ "$RES" != "0" ]; then
-                    echo "Build failed at $CDR/$OBJTARGETDIR/$str, exit"
+                    echo "Build failed at $CDR/$OBJTARGETDIR/$str, exit: err code:$RES"
                     cd $CDR
                     exit $RES;
                 fi
@@ -276,7 +288,7 @@ build_engine()
         make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/embedding/embedlite && make -j$PARALLEL_JOBS -C $CDR/$OBJTARGETDIR/toolkit/library
         RES=$?
         if [ "$RES" != "0" ]; then
-            echo "Build failed, exit"
+            echo "Build failed, exit: err code:$RES"
             cd $CDR
             exit $RES;
         fi
@@ -378,9 +390,11 @@ build_qmlbrowser()
 }
 
 build_engine
-build_components
-build_qtmozembed
-build_qmlbrowser
+if [ $ENGINE_ONLY == false ]; then
+  build_components
+  build_qtmozembed
+  build_qmlbrowser
+fi
 
 echo -n "
 prepare run-time environment:
@@ -398,8 +412,11 @@ $CDR/qtmozembed/tests/auto/run-tests.sh
 "
 
 echo -n "
-run test example:
-$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license"
+run test example:"
+if [ $BUILD_QT5QUICK1 == true ]; then
+echo
+echo -n "$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTest $EXTRA_ARGS -url about:license"
+fi
 if [ "$QT_VERSION" == "5" ]; then
 echo
 echo -n "$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTestQt5 $EXTRA_ARGS -url about:license"
