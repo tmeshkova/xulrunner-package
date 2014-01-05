@@ -1,6 +1,6 @@
 [submodule "mozilla-central"]
 	path = mozilla-central
-	url = git://github.com/tmeshkova/mozilla-central.git
+	url = git://github.com/tmeshkova/gecko-dev.git
 [submodule "qtmozembed"]
 	path = qtmozembed
 	url = git://github.com/tmeshkova/qtmozembed.git
