@@ -20,13 +20,14 @@ BUILD_QTMOZEMBEDSTATIC=false
 OBJDIRS=
 BUILD_BACKEND=false
 ENGINE_ONLY=false
+BUILD_SAILFISH=false
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdceo:x:s:g:t:p:v” OPTION
+while getopts “hdcjeo:x:s:g:t:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -60,6 +61,9 @@ do
      s)
          BUILD_QTMOZEMBEDSTATIC=$OPTARG
          ;;
+     j)
+         BUILD_SAILFISH=true
+         ;;
      v)
          VERBOSE=1
          ;;
@@ -70,7 +74,7 @@ do
  esac
 done
 
-echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION"
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION BUILD_SAILFISH=$BUILD_SAILFISH"
 
 if [ -z $TARGET_CONFIG ]
 then
@@ -80,6 +84,10 @@ fi
 
 OBJTARGETDIR=objdir-$TARGET_CONFIG$CUSTOM_BUILD
 QT_VERSION=`qmake -v | grep 'Using Qt version' | grep -oP '\d+' | sed q`
+if [ $QT_VERSION != 5 ]; then
+  echo "Building with qt4 is not supported"
+  exit 1
+fi
 setup_qt_version()
 {
   check_sbox2
@@ -139,9 +147,7 @@ check_sbox2()
 
 case $TARGET_CONFIG in
   "desktop")
-    if [ $QT_VERSION == 5 ]; then
-      EXTRAQTMOZEMBEDFLAGS=""
-    fi
+    EXTRAQTMOZEMBEDFLAGS=""
     echo "Building for desktop: $QT_VERSION"
     BUILD_QT5QUICK1=true
     MOZCONFIG=mozconfig.qtdesktop
@@ -210,7 +216,7 @@ OBJTARGETDIR=$OBJTARGETDIR-dbg
 fi
 
 
-echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION"
+echo "DEBUG_BUILD=$DEBUG_BUILD, TARGET_CONFIG=$TARGET_CONFIG, CUSTOM_BUILD=$CUSTOM_BUILD GLPROVIDER=$GLPROVIDER BUILD_X=$BUILD_X QT_VERSION=$QT_VERSION BUILD_SAILFISH=$BUILD_SAILFISH"
 echo "Building with MOZCONFIG=$MOZCONFIG in $OBJTARGETDIR"
 
 # prepare engine mozconfig
@@ -371,13 +377,10 @@ build_qmlbrowser()
     check_sbox2
     # Build qmlmozbrowser
     LIBSUFFIX="so"
-    LIBQTEMBEDWIDGET="libqtembedwidget"
     if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
       LIBSUFFIX="a"
     fi
-    if [ $QT_VERSION == 5 ]; then
-      LIBQTEMBEDWIDGET="libqt5embedwidget"
-    fi
+    LIBQTEMBEDWIDGET="libqt5embedwidget"
     cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/$LIBQTEMBEDWIDGET.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qmlmozbrowser
@@ -389,12 +392,37 @@ build_qmlbrowser()
     cd $CDR/qmlmozbrowser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
 }
 
+build_sailfish_browser()
+{
+    check_sbox2
+    # Build sailfish_browser
+    LIBSUFFIX="so"
+    if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
+      LIBSUFFIX="a"
+    fi
+    LIBQTEMBEDWIDGET="libqt5embedwidget"
+    cd $CDR/sailfish-browser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/$LIBQTEMBEDWIDGET.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    cd $CDR/sailfish-browser && $SB2_SHELL make clean
+    $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/sailfish-browser
+    RES=$?
+    if [ "$RES" != "0" ]; then
+        echo "Build failed, exit"
+        exit $RES;
+    fi
+    cd $CDR/sailfish-browser && ./link_to_system.sh $CDR/$OBJTARGETDIR/dist/bin $OBJTARGETDIR
+}
+
+
 build_engine
 if [ $ENGINE_ONLY == false ]; then
   build_components
   build_qtmozembed
   build_qmlbrowser
+  if [ $BUILD_SAILFISH == true ]; then
+    build_sailfish_browser
+  fi
 fi
+
 
 echo -n "
 prepare run-time environment:
@@ -420,6 +448,10 @@ fi
 if [ "$QT_VERSION" == "5" ]; then
 echo
 echo -n "$CDR/$OBJTARGETDIR/dist/bin/qmlMozEmbedTestQt5 $EXTRA_ARGS -url about:license"
+fi
+if [ $BUILD_SAILFISH == true ]; then
+echo
+echo -n "$CDR/$OBJTARGETDIR/dist/bin/sailfish-browser about:license"
 fi
 echo;echo;
 

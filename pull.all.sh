@@ -8,5 +8,6 @@ CURDIR=$PWD
 cd embedlite-components && echo embedlite-components && git checkout $OTHER_BRANCH && git fetch origin && git merge origin/$OTHER_BRANCH && cd $CURDIR
 cd qmlmozbrowser && echo qmlmozbrowser && git checkout master && git pull && cd $CURDIR
 cd qtmozembed && echo qtmozembed && git checkout $OTHER_BRANCH && git fetch origin && git merge origin/$OTHER_BRANCH && cd $CURDIR
+cd sailfish-browser && echo sailfish-browser && git checkout $OTHER_BRANCH && git fetch origin && git merge origin/$OTHER_BRANCH && cd $CURDIR
 cd mozilla-central && echo mozilla-central && git checkout $ENGINE_BRANCH && git fetch origin && git merge origin/$ENGINE_BRANCH && cd $CURDIR
 

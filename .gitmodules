@@ -10,3 +10,6 @@
 [submodule "embedlite-components"]
 	path = embedlite-components
 	url = git://github.com/tmeshkova/embedlite-components.git
+[submodule "sailfish-browser"]
+	path = sailfish-browser
+	url = git://github.com/sailfishos/sailfish-browser.git

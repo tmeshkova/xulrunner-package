@@ -2,7 +2,7 @@ HostDesktop: make libtool autotools-dev autoconf2.13 g++ zip zlib1g-dev pkg-conf
 HostDesktopQt5: make libtool autotools-dev autoconf2.13 g++ zip zlib1g-dev pkg-config libpango1.0-dev yasm libasound2-dev libgstreamer-plugins-base0.10-dev libgstreamer0.10-dev qt5-default qtbase5-private-dev qtdeclarative5-dev qtquick1-5-dev qtscript5-dev qtdeclarative5-test-plugin qtdeclarative5-qtquick2-plugin qtdeclarative5-private-dev
 HostDesktopQt-X:libxt-dev libx11-dev libxext-dev
 Mer: libtool qjson-devel libqtopengl-devel libqt-devel libXt-devel libXext-devel alsa-lib-devel dbus-devel dbus-glib-devel gstreamer-devel nspr-devel nss-devel autoconf213 zip pango-devel gst-plugins-base-devel yasm qtest-qml-devel
-MerQt5: python libtool gstreamer-devel nspr-devel nss-devel autoconf213 zip alsa-lib-devel pulseaudio-devel libXt-devel libXext-devel pango-devel gst-plugins-base-devel yasm libjpeg-turbo-devel qt5-qtwidgets-devel qt5-qtxmlpatterns-devel qt5-qtquick1-devel qt5-qtnetwork-devel qt5-qtcore-devel qt5-qtgui-devel qt5-qtprintsupport-devel qt5-qtdeclarative-qtquick-devel qt5-qtdbus-devel qt5-qtdeclarative-import-qttest qt5-qtdeclarative-qtquicktest-devel
+MerQt5: python libtool gstreamer-devel nspr-devel nss-devel autoconf213 zip alsa-lib-devel pulseaudio-devel libXt-devel libXext-devel pango-devel gst-plugins-base-devel yasm libjpeg-turbo-devel qt5-qtwidgets-devel qt5-qtxmlpatterns-devel qt5-qtquick1-devel qt5-qtnetwork-devel qt5-qtcore-devel qt5-qtgui-devel qt5-qtprintsupport-devel qt5-qtdeclarative-qtquick-devel qt5-qtdbus-devel qt5-qtdeclarative-import-qttest qt5-qtdeclarative-qtquicktest-devel libnemotransferengine-qt5-devel
 Rsppi-gtk: libgtk+2.0-dev libgconf2-dev
 Rsppi-qt: libqtbase5.0-dev
 Harmattan: unzip libqjson-dev
