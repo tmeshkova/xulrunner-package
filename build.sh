@@ -21,13 +21,14 @@ OBJDIRS=
 BUILD_BACKEND=false
 ENGINE_ONLY=false
 BUILD_SAILFISH=false
+TOOLS_REDIRECT=false
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdcjeo:x:s:g:t:p:v” OPTION
+while getopts “hdcjreo:x:s:g:t:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -42,6 +43,9 @@ do
          ;;
      d)
          DEBUG_BUILD=1
+         ;;
+     r)
+         TOOLS_REDIRECT=true
          ;;
      t)
          TARGET_CONFIG=$OPTARG
@@ -267,6 +271,17 @@ echo "$EXTRAOPTS" >> $MOZCONFIGTEMP
 
 build_engine()
 {
+    # Setup tool redirection
+    if [ $TOOLS_REDIRECT == true ]; then
+        export SBOX_REDIRECT_FORCE=/usr/bin/python:/usr/bin/perl
+        MOZDIR=$CDR/mozilla-central
+        export DONT_POPULATE_VIRTUALENV=1
+        export PYTHONPATH=$MOZDIR/python:$MOZDIR/config:$MOZDIR/build:$MOZDIR/xpcom/typelib/xpt/tools:$MOZDIR/dom/bindings:$MOZDIR/dom/bindings/parser:$MOZDIR/other-licenses/ply:$MOZDIR/media/webrtc/trunk/tools/gyp/pylib/
+        for i in $(find $MOZDIR/python $MOZDIR/testing/mozbase -mindepth 1 -maxdepth 1 -type d); do
+            export PYTHONPATH+=:$i
+        done
+    fi
+
     # Build engine
     echo "Checking $CDR/$OBJTARGETDIR/full_build_date"
     export MOZCONFIG=$MOZCONFIG
@@ -308,6 +323,7 @@ build_engine()
             echo "Need Full configure"
             MOZCONFIG=$MOZCONFIG ./mach configure
             date +%s > $CDR/$OBJTARGETDIR/full_config_date
+            cp $CDR/$OBJTARGETDIR/config.status $CDR/
         fi
         MOZCONFIG=$MOZCONFIG ./mach build
         #make -j8 -C $CDR/$OBJTARGETDIR
@@ -324,6 +340,7 @@ build_engine()
         mv $CDR/$OBJTARGETDIR/dist/sdk/bin_no_symlink $CDR/$OBJTARGETDIR/dist/sdk/bin
         # make build stamp
         date +%s > $CDR/$OBJTARGETDIR/full_build_date
+        rm -f $CDR/config.status $CDR/config.statusc
     fi
 
     cd $CDR
