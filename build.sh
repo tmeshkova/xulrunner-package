@@ -397,8 +397,12 @@ build_qmlbrowser()
     if [ $BUILD_QTMOZEMBEDSTATIC == true ]; then
       LIBSUFFIX="a"
     fi
+    SF_TARGET=
+    if [ "$TARGET_CONFIG" == "mer" ]; then
+      SF_TARGET=1
+    fi
     LIBQTEMBEDWIDGET="libqt5embedwidget"
-    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/$LIBQTEMBEDWIDGET.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
+    cd $CDR/qmlmozbrowser && $SB2_SHELL $TARGET_QMAKE -recursive BUILD_QT5QUICK1=$BUILD_QT5QUICK1 SF_TARGET=$SF_TARGET OBJ_BUILD_PATH=$OBJTARGETDIR DEFAULT_COMPONENT_PATH=$CDR/$OBJTARGETDIR/dist/bin QTEMBED_LIB+=$CDR/qtmozembed/$OBJTARGETDIR/src/$LIBQTEMBEDWIDGET.$LIBSUFFIX INCLUDEPATH+=$CDR/qtmozembed/src && cd $CDR
     cd $CDR/qmlmozbrowser && $SB2_SHELL make clean
     $SB2_SHELL make -j$PARALLEL_JOBS -C $CDR/qmlmozbrowser
     RES=$?
