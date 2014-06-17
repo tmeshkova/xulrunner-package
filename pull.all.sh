@@ -2,7 +2,7 @@
 
 ENGINE_BRANCH=embedlite
 OTHER_BRANCH=master
-#ENGINE_BRANCH=embedlite_31
+#ENGINE_BRANCH=embedlite_32
 git pull && git submodule init && git submodule update && git submodule status
 CURDIR=$PWD
 cd embedlite-components && echo embedlite-components && git checkout $OTHER_BRANCH && git fetch origin && git merge origin/$OTHER_BRANCH && cd $CURDIR

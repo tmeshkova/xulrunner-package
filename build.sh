@@ -266,6 +266,7 @@ echo "ac_add_options --disable-tests" >> $MOZCONFIGTEMP
 echo "ac_add_options --disable-accessibility" >> $MOZCONFIGTEMP
 echo "ac_add_options --disable-dbus" >> $MOZCONFIGTEMP
 echo "ac_add_options --disable-necko-wifi" >> $MOZCONFIGTEMP
+echo "ac_add_options --disable-trace-malloc" >> $MOZCONFIGTEMP
 echo "mk_add_options AUTOCLOBBER=1" >> $MOZCONFIGTEMP
 echo "$EXTRAOPTS" >> $MOZCONFIGTEMP
 
