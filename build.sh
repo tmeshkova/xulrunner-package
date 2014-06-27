@@ -22,13 +22,14 @@ BUILD_BACKEND=false
 ENGINE_ONLY=false
 BUILD_SAILFISH=false
 TOOLS_REDIRECT=false
+NO_ENGINE_BUILD=false
 
 usage()
 {
     echo "./build.sh -t desktop"
 }
 
-while getopts “hdcjreo:x:s:g:t:p:v” OPTION
+while getopts “hdcjreno:x:s:g:t:p:v” OPTION
 do
  case $OPTION in
      h)
@@ -68,6 +69,9 @@ do
      j)
          BUILD_SAILFISH=true
          ;;
+     n)
+         NO_ENGINE_BUILD=true
+         ;;
      v)
          VERBOSE=1
          ;;
@@ -103,7 +107,6 @@ setup_cross_autoconf_env()
     if [ $NEED_SBOX2 == false ];then
         return;
     fi
-    export CROSS_COMPILE=1
     export CROSS_TARGET="--host=arm-none-linux-gnueabi"
     export CC="$CROSS_COMPILER_PATH-gcc --sysroot=$TARGET_ROOTFS"
     export CPP=$CROSS_COMPILER_PATH-cpp
@@ -165,7 +168,6 @@ case $TARGET_CONFIG in
     NEED_SBOX2=true
     setup_qt_version
     MOZCONFIG=mozconfig.qtN9-qt-cross
-    export CROSS_COMPILE=1
     export CROSS_TARGET=--target=arm-none-linux-gnueabi
     export HOST_QMAKE="$CDR/cross-tools/host-qmake-4.7.4"
     export HOST_MOC="$CDR/cross-tools/host-moc-4.7.4"
@@ -437,7 +439,9 @@ build_sailfish_browser()
 }
 
 
-build_engine
+if [ $NO_ENGINE_BUILD == false ]; then
+  build_engine
+fi
 if [ $ENGINE_ONLY == false ]; then
   build_components
   build_qtmozembed
